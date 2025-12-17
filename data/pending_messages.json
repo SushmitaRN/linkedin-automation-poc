@@ -1,0 +1,34 @@
+[
+  {
+    "profile_url": "file:///e:/visualstudio/linkedin-automation-poc/mock-site/profile.html?id=1",
+    "template_id": "welcome_1",
+    "vars": {
+      "first_name": "Alice"
+    },
+    "enqueued_at": "2025-12-17T18:43:12.10708+05:30"
+  },
+  {
+    "profile_url": "file:///e:/visualstudio/linkedin-automation-poc/mock-site/profile.html?id=2",
+    "template_id": "welcome_1",
+    "vars": {
+      "first_name": "Bob"
+    },
+    "enqueued_at": "2025-12-17T18:43:17.655312+05:30"
+  },
+  {
+    "profile_url": "file:///e:/visualstudio/linkedin-automation-poc/mock-site/profile.html?id=3",
+    "template_id": "welcome_1",
+    "vars": {
+      "first_name": "Carol"
+    },
+    "enqueued_at": "2025-12-17T18:43:23.7979989+05:30"
+  },
+  {
+    "profile_url": "file:///e:/visualstudio/linkedin-automation-poc/mock-site/profile.html?id=1",
+    "template_id": "welcome_1",
+    "vars": {
+      "first_name": "Alice"
+    },
+    "enqueued_at": "2025-12-17T18:56:26.8511024+05:30"
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {
+    "id": "welcome_1",
+    "name": "Welcome and thanks",
+    "body": "Hi {{first_name}}, thanks for connecting! I’d love to learn more about your work at {{company}}.",
+    "daily_limit": 5
+  },
+  {
+    "id": "followup_1",
+    "name": "Follow up after acceptance",
+    "body": "Hi {{first_name}}, great to be connected — are you open to a quick call to discuss collaboration?",
+    "daily_limit": 3
+  }
+]
