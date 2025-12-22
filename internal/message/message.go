@@ -139,3 +139,55 @@ func SendMessageIfConnected(page *rod.Page, profileURL, template string, vars ma
 
 	return nil
 }
+
+// SendMessage sends a message to the given profile/page without checking connection status.
+func SendMessage(page *rod.Page, profileURL, template string, vars map[string]string, cfg MessageConfig) error {
+	if cfg.StoragePath == "" {
+		cfg.StoragePath = "data/sent_messages.json"
+	}
+
+	if err := page.Navigate(profileURL); err != nil {
+		return err
+	}
+	page.MustWaitLoad()
+	log.Println("Preparing page for messaging...")
+	behavior.ReadingPause()
+
+	// Enforce message daily quota
+	if err := ratelimit.CheckAndIncrement("message", 5, "data/quotas.json"); err != nil {
+		return err
+	}
+
+	// Compose message
+	msg := RenderTemplate(template, vars)
+
+	box, err := page.Element("#message-box")
+	if err != nil || box == nil {
+		return errors.New("message box not found on page")
+	}
+	log.Printf("Typing message (%d chars)...", len(msg))
+	if err := behavior.HumanType(box, msg); err != nil {
+		return err
+	}
+
+	behavior.ReadingPause()
+
+	sendBtn, err := page.Element("#send-btn")
+	if err != nil || sendBtn == nil {
+		return errors.New("send button not found")
+	}
+	if err := sendBtn.Click(proto.InputMouseButtonLeft, 1); err != nil {
+		return err
+	}
+
+	log.Println("✓ Message sent (no-connection check)")
+	behavior.ReadingPause()
+
+	arr, _ := loadMessages(cfg.StoragePath)
+	arr = append(arr, SentMessage{ProfileURL: profileURL, Message: msg, Timestamp: time.Now()})
+	if err := saveMessages(cfg.StoragePath, arr); err != nil {
+		log.Printf("warning: could not save messages: %v", err)
+	}
+
+	return nil
+}

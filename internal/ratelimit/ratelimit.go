@@ -63,6 +63,10 @@ func saveQuotas(path string, q Quotas) error {
 // CheckAndIncrement checks whether `action` is under the daily `limit` and increments the counter if allowed.
 // Returns an error if the limit has been reached.
 func CheckAndIncrement(action string, limit int, path string) error {
+	// Developer override: skip quota checks when DEV_IGNORE_QUOTAS=1
+	if os.Getenv("DEV_IGNORE_QUOTAS") == "1" {
+		return nil
+	}
 	if limit <= 0 {
 		return nil
 	}

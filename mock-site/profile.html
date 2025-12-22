@@ -1,55 +1,308 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Mock Profile</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Professional Profile</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5 }
-    .card { background: #fff; padding: 20px; border-radius: 6px; border: 1px solid #ddd }
-    #connect-btn { padding: 10px 14px; background: #0a66c2; color: white; border: none; border-radius: 4px; cursor: pointer }
-    #send-btn { padding: 8px 12px; background: #0a66c2; color: white; border: none; border-radius: 4px; cursor: pointer }
-    #message-box { width: 100%; height: 80px; }
-    .meta { color: #666 }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #f5f7fa;
+      min-height: 100vh;
+      color: #2d3e50;
+    }
+    .navbar {
+      background: white;
+      border-bottom: 1px solid #e8ecf1;
+      padding: 16px 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    .navbar-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .navbar-logo {
+      font-size: 20px;
+      font-weight: 700;
+      color: #0f3460;
+      letter-spacing: -0.5px;
+    }
+    .navbar a {
+      color: #0f3460;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .navbar a:hover {
+      color: #1a5a96;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+    .profile-header {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+      margin-bottom: 30px;
+      border: 1px solid #e8ecf1;
+    }
+    .profile-cover {
+      height: 250px;
+      background: linear-gradient(135deg, #0f3460 0%, #1a5a96 100%);
+    }
+    .profile-body {
+      padding: 30px;
+      position: relative;
+    }
+    .profile-avatar {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0f3460, #1a5a96);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 60px;
+      font-weight: 700;
+      position: absolute;
+      top: -75px;
+      left: 30px;
+      border: 5px solid white;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    .profile-info {
+      margin-left: 180px;
+      margin-bottom: 20px;
+    }
+    .profile-name {
+      font-size: 32px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 8px;
+    }
+    .profile-title {
+      font-size: 18px;
+      color: #666;
+      margin-bottom: 12px;
+      font-weight: 500;
+    }
+    .profile-location {
+      font-size: 14px;
+      color: #999;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .profile-actions {
+      display: flex;
+      gap: 12px;
+      margin-left: 180px;
+    }
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .btn-primary {
+      background: #0f3460;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #1a5a96;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(15, 52, 96, 0.25);
+    }
+    .btn-secondary {
+      background: white;
+      color: #0f3460;
+      border: 2px solid #0f3460;
+    }
+    .btn-secondary:hover {
+      background: #f5f7fa;
+    }
+    .section {
+      background: white;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e8ecf1;
+    }
+    .section-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #f5f7fa;
+    }
+    .about {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+    .message-section {
+      background: white;
+      border-radius: 8px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e8ecf1;
+      margin-top: 20px;
+    }
+    .message-box {
+      width: 100%;
+      min-height: 100px;
+      padding: 12px;
+      border: 1px solid #e0e6ed;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: vertical;
+      margin-bottom: 12px;
+    }
+    .message-box:focus {
+      outline: none;
+      border-color: #0f3460;
+      box-shadow: 0 0 0 3px rgba(15, 52, 96, 0.1);
+    }
+    .status-message {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      display: none;
+    }
+    .status-success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+      display: block;
+    }
+    .status-info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+      display: block;
+    }
+    @media (max-width: 768px) {
+      .profile-body {
+        padding: 20px;
+      }
+      .profile-avatar {
+        width: 100px;
+        height: 100px;
+        font-size: 45px;
+        top: -50px;
+        left: 20px;
+      }
+      .profile-name {
+        font-size: 24px;
+      }
+      .profile-title {
+        font-size: 16px;
+      }
+      .profile-info,
+      .profile-actions {
+        margin-left: 0;
+        margin-top: 60px;
+      }
+      .profile-actions {
+        flex-wrap: wrap;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h2 id="name">Profile Name</h2>
-    <div id="title" class="meta">Title</div>
-    <div id="location" class="meta">Location</div>
+  <div class="navbar">
+    <div class="navbar-content">
+      <div class="navbar-logo">ProNet</div>
+      <a onclick="history.back()">← Back to Search</a>
+    </div>
+  </div>
 
-    <div style="margin-top:16px">
-      <button id="connect-btn">Connect</button>
-      <span id="connect-status" style="margin-left:12px;color:#333">Not connected</span>
+  <div class="container">
+    <div class="profile-header">
+      <div class="profile-cover"></div>
+      <div class="profile-body">
+        <div class="profile-avatar" id="avatar">A</div>
+        <div class="profile-info">
+          <div class="profile-name" id="name">Profile Name</div>
+          <div class="profile-title" id="title">Job Title</div>
+          <div class="profile-location">
+            <span>📍</span>
+            <span id="location">Location</span>
+          </div>
+        </div>
+        <div class="profile-actions">
+          <button class="btn btn-primary" id="connect-btn">Connect</button>
+          <button class="btn btn-secondary" id="message-toggle-btn">Message</button>
+        </div>
+        <div id="connect-status" class="status-message"></div>
+      </div>
     </div>
 
-    <div style="margin-top:20px">
-      <h3>Message</h3>
-      <textarea id="message-box" placeholder="Write a short note..."></textarea>
-      <div style="margin-top:8px"><button id="send-btn">Send</button></div>
-      <div id="message-status" style="margin-top:8px;color:#333"></div>
+    <div class="section">
+      <div class="section-title">About</div>
+      <div class="about" id="about">
+        An experienced professional dedicated to building innovative solutions and fostering meaningful connections in the industry.
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Company Information</div>
+      <div style="font-size: 14px; color: #666;">
+        <div style="margin-bottom: 12px;">
+          <strong>Company:</strong> <span id="company">Company Name</span>
+        </div>
+        <div>
+          <a href="#" id="company-link" style="color: #0f3460; text-decoration: none; font-weight: 500;">View Company Page</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="message-section">
+      <div class="section-title">Send a Message</div>
+      <textarea id="message-box" class="message-box" placeholder="Write a professional message to connect..."></textarea>
+      <button class="btn btn-primary" id="send-btn" onclick="sendMessage()">Send Message</button>
+      <div id="message-status" class="status-message"></div>
     </div>
   </div>
 
   <script>
-    // Mirror of mockProfiles in search.html for demo purposes
     const mockProfiles = {
-      1: { name: "Alice Johnson", title: "Senior Software Engineer", location: "San Francisco, CA" },
-      2: { name: "Bob Smith", title: "Full Stack Engineer", location: "New York, NY" },
-      3: { name: "Carol Davis", title: "DevOps Engineer", location: "Seattle, WA" },
-      4: { name: "David Lee", title: "Backend Engineer", location: "San Francisco, CA" },
-      5: { name: "Emma Wilson", title: "ML Engineer", location: "Mountain View, CA" },
-      6: { name: "Frank Brown", title: "QA Engineer", location: "Austin, TX" },
-      7: { name: "Grace Kim", title: "Frontend Engineer", location: "Los Angeles, CA" },
-      8: { name: "Henry Martinez", title: "Platform Engineer", location: "Chicago, IL" },
-      9: { name: "Iris Chen", title: "Data Engineer", location: "Boston, MA" },
-      101: { name: "James Wilson", title: "Engineering Manager", location: "San Francisco, CA" },
-      102: { name: "Karen Thompson", title: "Product Manager", location: "New York, NY" },
-      103: { name: "Leo Garcia", title: "Project Manager", location: "Austin, TX" },
-      104: { name: "Maria Rodriguez", title: "Team Lead", location: "Seattle, WA" },
-      105: { name: "Nathan Anderson", title: "Engineering Manager", location: "Mountain View, CA" },
-      201: { name: "Sophie Martin", title: "UX Designer", location: "San Francisco, CA" },
-      202: { name: "Thomas Jackson", title: "UI Designer", location: "New York, NY" }
+      1: { name: "Alice Johnson", title: "Senior Software Engineer", location: "San Francisco, CA", company: "Innotech", about: "Passionate about building scalable microservices and leading engineering teams. 10+ years of experience in distributed systems." },
+      2: { name: "Bob Smith", title: "Full Stack Engineer", location: "New York, NY", company: "Atlas", about: "Full-stack developer with expertise in cloud infrastructure and modern web technologies. Always learning and growing." },
+      3: { name: "Carol Davis", title: "DevOps Engineer", location: "Seattle, WA", company: "CloudWorks", about: "Cloud infrastructure specialist. Passionate about automating deployments and improving system reliability." },
+      4: { name: "David Lee", title: "Backend Engineer", location: "San Francisco, CA", company: "ByteLabs", about: "Backend systems architect with focus on performance optimization. Active contributor to open-source projects." },
+      5: { name: "Emma Wilson", title: "ML Engineer", location: "Mountain View, CA", company: "VisionaryAI", about: "Machine learning enthusiast exploring the intersection of AI and product. PhD in Computer Science." },
+      6: { name: "Frank Brown", title: "QA Engineer", location: "Austin, TX", company: "QualityFirst", about: "Quality assurance professional committed to delivering bug-free experiences. Automation testing expert." },
+      7: { name: "Grace Kim", title: "Frontend Engineer", location: "Los Angeles, CA", company: "PixelForge", about: "Frontend specialist passionate about creating beautiful, accessible user interfaces. React expert." },
+      8: { name: "Henry Martinez", title: "Platform Engineer", location: "Chicago, IL", company: "InfraCorp", about: "Platform engineer focused on developer experience and tooling. Building the infrastructure for tomorrow." },
+      9: { name: "Iris Chen", title: "Data Engineer", location: "Boston, MA", company: "DataMinds", about: "Data engineering expert specializing in big data pipelines and analytics. Kaggle competition enthusiast." },
+      101: { name: "James Wilson", title: "Engineering Manager", location: "San Francisco, CA", company: "Innotech", about: "Engineering manager passionate about building high-performing teams and mentoring talent. 15+ years in tech leadership." },
+      102: { name: "Karen Thompson", title: "Product Manager", location: "New York, NY", company: "Atlas", about: "Product leader focused on user-centric design and market fit. MBA from top business school." },
+      103: { name: "Leo Garcia", title: "Project Manager", location: "Austin, TX", company: "BuildRight", about: "Project management professional with agile expertise. PMP certified with 12+ years of experience." },
+      104: { name: "Maria Rodriguez", title: "Team Lead", location: "Seattle, WA", company: "CloudWorks", about: "Technical team lead with strong mentoring skills. Committed to building inclusive engineering culture." },
+      105: { name: "Nathan Anderson", title: "Engineering Manager", location: "Mountain View, CA", company: "VisionaryAI", about: "Engineering manager passionate about AI/ML. Building world-class teams to tackle hard problems." },
+      201: { name: "Sophie Martin", title: "UX Designer", location: "San Francisco, CA", company: "PixelForge", about: "UX designer and design systems advocate. Design thinking methodology enthusiast." },
+      202: { name: "Thomas Jackson", title: "UI Designer", location: "New York, NY", company: "Atlas", about: "UI specialist creating pixel-perfect experiences. Figma expert and design tokens advocate." }
     };
 
     function getQueryParam(name) {
@@ -58,22 +311,76 @@
     }
 
     const id = getQueryParam('id') || '1';
-    const p = mockProfiles[id] || { name: 'Unknown', title: 'Unknown', location: '' };
-    document.getElementById('name').innerText = p.name;
-    document.getElementById('title').innerText = p.title;
-    document.getElementById('location').innerText = p.location;
+    const profile = mockProfiles[id] || { 
+      name: 'Unknown Profile', 
+      title: 'Professional', 
+      location: 'Unknown Location',
+      company: 'Company',
+      about: 'Professional with diverse experience in the industry.'
+    };
+
+    // Get first letter for avatar
+    const initials = profile.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+
+    // Set profile data
+    document.getElementById('avatar').textContent = initials;
+    document.getElementById('name').textContent = profile.name;
+    document.getElementById('title').textContent = profile.title;
+    document.getElementById('location').textContent = profile.location;
+    document.getElementById('company').textContent = profile.company;
+    document.getElementById('about').textContent = profile.about;
+    document.getElementById('company-link').href = `company.html?id=${encodeURIComponent(profile.company)}`;
+
+    let connected = false;
 
     document.getElementById('connect-btn').addEventListener('click', function() {
-      document.getElementById('connect-status').innerText = 'Request sent';
+      connected = !connected;
+      const status = document.getElementById('connect-status');
+      
+      if (connected) {
+        this.textContent = 'Connected';
+        this.style.opacity = '0.7';
+        this.style.cursor = 'default';
+        status.textContent = '✓ Connection request sent successfully';
+        status.className = 'status-message status-success';
+      } else {
+        this.textContent = 'Connect';
+        this.style.opacity = '1';
+        this.style.cursor = 'pointer';
+        status.className = 'status-message';
+      }
     });
 
-    document.getElementById('send-btn').addEventListener('click', function() {
-      const msg = document.getElementById('message-box').value;
-      if (!msg.trim()) {
-        document.getElementById('message-status').innerText = 'Message is empty';
+    document.getElementById('message-toggle-btn').addEventListener('click', function() {
+      const messageSection = document.querySelector('.message-section');
+      messageSection.scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('message-box').focus();
+    });
+
+    function sendMessage() {
+      const message = document.getElementById('message-box').value.trim();
+      const status = document.getElementById('message-status');
+
+      if (!message) {
+        status.textContent = '⚠️ Please write a message before sending';
+        status.className = 'status-message status-info';
         return;
       }
-      document.getElementById('message-status').innerText = 'Message sent';
+
+      status.textContent = '✓ Message sent to ' + profile.name + '!';
+      status.className = 'status-message status-success';
+      document.getElementById('message-box').value = '';
+      
+      setTimeout(() => {
+        status.className = 'status-message';
+      }, 4000);
+    }
+
+    // Allow Enter+Ctrl to send
+    document.getElementById('message-box').addEventListener('keydown', function(e) {
+      if (e.ctrlKey && e.key === 'Enter') {
+        sendMessage();
+      }
     });
   </script>
 </body>

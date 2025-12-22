@@ -14,9 +14,13 @@ func SaveCookies(page *rod.Page, path string) error {
 	if page == nil {
 		return nil
 	}
-	// Use MustEval to retrieve document.cookie as a string
-	val := page.MustEval("() => document.cookie")
-	cookieStr := val.String()
+	// Use Eval to retrieve document.cookie as a string (with error handling)
+	result, err := page.Eval("() => document.cookie")
+	if err != nil {
+		log.Printf("warning: could not read cookies: %v", err)
+		return err
+	}
+	cookieStr := result.Value.String()
 	if err := ioutil.WriteFile(path, []byte(cookieStr), 0o644); err != nil {
 		return err
 	}
@@ -43,7 +47,9 @@ func LoadCookies(page *rod.Page, path string) error {
 	for _, p := range parts {
 		// set each cookie via document.cookie
 		js := `document.cookie = "` + p + `; path=/";`
-		page.MustEval(js)
+		if _, err := page.Eval(js); err != nil {
+			log.Printf("warning: could not set cookie: %v", err)
+		}
 	}
 	log.Printf("loaded cookies from %s", path)
 	return nil

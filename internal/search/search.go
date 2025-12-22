@@ -115,6 +115,22 @@ func SearchFirstPage(page *rod.Page, query string, config SearchConfig) (*Search
 		time.Sleep(150 * time.Millisecond)
 	}
 
+	// Debug: report how many matching profile link elements exist and whether a no-results marker is present
+	if debugElems, _ := page.Elements(config.ProfileLinkSel); debugElems != nil {
+		log.Printf("DEBUG: found %d elements for selector %s", len(debugElems), config.ProfileLinkSel)
+	} else {
+		log.Printf("DEBUG: no elements found for selector %s", config.ProfileLinkSel)
+	}
+	if noRes, _ := page.Element(".no-results"); noRes != nil {
+		if txt, err := noRes.Text(); err == nil {
+			log.Printf("DEBUG: .no-results present with text: %s", strings.TrimSpace(txt))
+		} else {
+			log.Printf("DEBUG: .no-results present (could not read text)")
+		}
+	} else {
+		log.Printf("DEBUG: .no-results element not present")
+	}
+
 	// Simulate scanning results
 	log.Println("Scanning search results...")
 	behavior.ReadingPause()
@@ -252,15 +268,25 @@ func collectProfilesFromCurrentPage(page *rod.Page, config SearchConfig) ([]Prof
 		}
 		profile.Name = strings.TrimSpace(text)
 
-		// Get profile title (next sibling or nearby element)
-		parent, err := element.Parent()
-		if err == nil {
-			titleElem, err := parent.Element(".profile-title")
-			if err == nil {
-				titleText, err := titleElem.Text()
-				if err == nil {
-					profile.Title = strings.TrimSpace(titleText)
+		// Get profile title: climb to the nearest ancestor with class "profile-card"
+		// and then find the `.profile-title` within it.
+		if parent, err := element.Parent(); err == nil {
+			curr := parent
+			for {
+				cls, _ := curr.Attribute("class")
+				if cls != nil && strings.Contains(*cls, "profile-card") {
+					if titleElem, err := curr.Element(".profile-title"); err == nil && titleElem != nil {
+						if titleText, err := titleElem.Text(); err == nil {
+							profile.Title = strings.TrimSpace(titleText)
+						}
+					}
+					break
 				}
+				next, err := curr.Parent()
+				if err != nil || next == nil {
+					break
+				}
+				curr = next
 			}
 		}
 

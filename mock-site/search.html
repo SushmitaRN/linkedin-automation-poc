@@ -3,81 +3,271 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mock LinkedIn - Search</title>
+  <title>ProNet - Professional Network Dashboard</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #f5f7fa;
       min-height: 100vh;
+      color: #2d3e50;
+    }
+    .navbar {
+      background: white;
+      border-bottom: 1px solid #e8ecf1;
+      padding: 16px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    .navbar-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 24px;
+    }
+    .navbar-logo {
+      font-size: 20px;
+      font-weight: 700;
+      color: #0f3460;
+      letter-spacing: -0.5px;
+    }
+    /* Post Styles */
+    .post {
+      background: white;
+      border-radius: 8px;
+      border: 1px solid #e8ecf1;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+      transition: all 0.3s ease;
+      margin-bottom: 20px;
+    }
+    .post:hover {
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+    .post-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #e8ecf1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .post-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0f3460, #1a5a96);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .post-author-info {
+      flex: 1;
+    }
+    .post-author {
+      font-weight: 600;
+      color: #1a1a1a;
+      font-size: 14px;
+    }
+    .post-time {
+      font-size: 12px;
+      color: #999;
+      margin-top: 2px;
+    }
+    .post-image {
+      width: 100%;
+      height: 300px;
+      background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      color: #0f3460;
+    }
+    .post-content {
       padding: 20px;
     }
-    .header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 30px 25px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+    .post-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 8px;
+      line-height: 1.4;
     }
-    .header h1 {
-      font-size: 28px;
-      font-weight: 700;
-      margin: 0;
+    .post-text {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+    .post-footer {
+      padding: 12px 20px;
+      border-top: 1px solid #e8ecf1;
+      display: flex;
+      justify-content: space-around;
+      gap: 8px;
+    }
+    .post-action {
+      flex: 1;
+      padding: 8px 12px;
+      border: none;
+      background: none;
+      color: #666;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .post-action:hover {
+      background: #f5f7fa;
+      color: #0f3460;
+    }
+    .post-action.liked {
+      color: #e74c3c;
+    }
+    .comment-section {
+      padding: 12px 20px;
+      border-top: 1px solid #e8ecf1;
+      display: none;
+    }
+    .comment-section.show {
+      display: block;
+    }
+    .comment-input {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .comment-input input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #e0e6ed;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    .comment-input button {
+      padding: 8px 14px;
+      background: #0f3460;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .comment-input button:hover {
+      background: #1a5a96;
+    }
+    .comment {
+      padding: 12px;
+      background: #f8fafb;
+      border-radius: 4px;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+    .comment-author {
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+    .comment-text {
+      color: #666;
+      margin-top: 4px;
+    }
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
     }
     .search-box {
-      margin-bottom: 30px;
+      flex: 1;
+      max-width: 400px;
       display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
+      gap: 8px;
     }
     #search-input {
-      padding: 12px 16px;
       flex: 1;
-      min-width: 250px;
-      font-size: 15px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 14px;
+      border: 1px solid #e0e6ed;
+      border-radius: 20px;
+      background: #f8fafb;
       transition: all 0.3s ease;
-      background: white;
     }
     #search-input:focus {
       outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      border-color: #0f3460;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(15, 52, 96, 0.1);
     }
     #search-btn {
-      padding: 12px 30px;
-      background: linear-gradient(135deg, #667eea, #764ba2);
+      padding: 10px 20px;
+      background: #0f3460;
       color: white;
       border: none;
-      border-radius: 8px;
+      border-radius: 20px;
       cursor: pointer;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 600;
       transition: all 0.3s ease;
       white-space: nowrap;
     }
     #search-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+      background: #1a5a96;
+      transform: translateY(-1px);
     }
-    .container {
-      max-width: 900px;
+    .main-container {
+      max-width: 1400px;
       margin: 0 auto;
-    }
-    .results {
+      padding: 24px 20px;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      grid-template-columns: 1fr 2fr 1fr;
       gap: 20px;
-      margin-bottom: 20px;
+    }
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .feed {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .section-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #0f3460;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+      padding: 0 16px;
+    }
+    .card {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e8ecf1;
     }
     .profile-card {
       background-color: white;
       padding: 20px;
-      border-radius: 10px;
-      border: none;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      border-radius: 8px;
+      border: 1px solid #e8ecf1;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
       transition: all 0.3s ease;
       cursor: pointer;
       position: relative;
@@ -89,14 +279,17 @@
       top: 0;
       left: 0;
       right: 0;
-      height: 4px;
-      background: linear-gradient(135deg, #667eea, #764ba2);
+      height: 3px;
+      background: linear-gradient(135deg, #0f3460, #1a5a96);
       opacity: 0;
       transition: opacity 0.3s ease;
     }
     .profile-card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+    .profile-card:hover::before {
+      opacity: 1;
     }
     .profile-card:hover::before {
       opacity: 1;
@@ -176,239 +369,356 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>🔍 Search Professionals</h1>
-    </div>
-
-    <div class="search-box">
-      <input
-        id="search-input"
-        type="text"
-        placeholder="Search by name, location, job title, or company..."
-      />
-      <button id="search-btn">Search</button>
-    </div>
-
-    <div id="main-columns" style="display:flex;gap:20px;align-items:flex-start;">
-      <div style="flex:1;">
-        <div id="featured-posts" style="margin-bottom:20px;"></div>
-        <div id="results-container"></div>
+  <div class="navbar">
+    <div class="navbar-content">
+      <div class="navbar-logo">ProNet</div>
+      <div class="search-box">
+        <input
+          id="search-input"
+          type="text"
+          placeholder="Search professionals, titles, companies..."
+        />
+        <button id="search-btn">Search</button>
       </div>
-      <aside style="width:300px;">
-        <div id="profile-section"></div>
-      </aside>
-    </div>
-
-    <div class="pagination">
-      <button id="prev-btn" onclick="previousPage()">← Previous</button>
-      <span>Page <span id="current-page">1</span> of <span id="total-pages">3</span></span>
-      <button id="next-btn" onclick="nextPage()">Next →</button>
     </div>
   </div>
 
+  <div class="main-container">
+    <!-- Left Sidebar -->
+    <div class="sidebar">
+      <div class="card">
+        <div class="section-title">Trending Companies</div>
+        <div id="trending-companies"></div>
+      </div>
+      <div class="card">
+        <div class="section-title">Quick Links</div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <a href="#" style="color: #0f3460; text-decoration: none; font-size: 14px; font-weight: 500;">My Network</a>
+          <a href="#" style="color: #0f3460; text-decoration: none; font-size: 14px; font-weight: 500;">Jobs</a>
+          <a href="#" style="color: #0f3460; text-decoration: none; font-size: 14px; font-weight: 500;">My Profile</a>
+          <a href="#" style="color: #0f3460; text-decoration: none; font-size: 14px; font-weight: 500;">Messages</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Feed -->
+    <div class="feed">
+      <div id="posts-container"></div>
+      <div id="results-container"></div>
+    </div>
+
+    <!-- Right Sidebar -->
+    <div class="sidebar">
+      <div class="card">
+        <div class="section-title">Featured Professionals</div>
+        <div id="featured-professionals"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pagination" style="max-width:1400px;margin:20px auto;">
+    <button id="prev-btn" disabled>← Previous</button>
+    <span>Page <span id="current-page">1</span> of <span id="total-pages">1</span></span>
+    <button id="next-btn" disabled>Next →</button>
+  </div>
+
   <script>
-    // Mock profile database
+    // Mock database
     const mockProfiles = {
-      engineer: [
-        { id: 1, name: "Alice Johnson", title: "Senior Software Engineer", location: "San Francisco, CA", company: "Innotech" },
-        { id: 2, name: "Bob Smith", title: "Full Stack Engineer", location: "New York, NY", company: "Atlas" },
-        { id: 3, name: "Carol Davis", title: "DevOps Engineer", location: "Seattle, WA", company: "CloudWorks" },
-        { id: 4, name: "David Lee", title: "Backend Engineer", location: "San Francisco, CA", company: "ByteLabs" },
-        { id: 5, name: "Emma Wilson", title: "ML Engineer", location: "Mountain View, CA", company: "VisionaryAI" },
-        { id: 6, name: "Frank Brown", title: "QA Engineer", location: "Austin, TX", company: "QualityFirst" },
-        { id: 7, name: "Grace Kim", title: "Frontend Engineer", location: "Los Angeles, CA", company: "PixelForge" },
-        { id: 8, name: "Henry Martinez", title: "Platform Engineer", location: "Chicago, IL", company: "InfraCorp" },
-        { id: 9, name: "Iris Chen", title: "Data Engineer", location: "Boston, MA", company: "DataMinds" },
-      ],
-      manager: [
-        { id: 101, name: "James Wilson", title: "Engineering Manager", location: "San Francisco, CA", company: "Innotech" },
-        { id: 102, name: "Karen Thompson", title: "Product Manager", location: "New York, NY", company: "Atlas" },
-        { id: 103, name: "Leo Garcia", title: "Project Manager", location: "Austin, TX", company: "BuildRight" },
-        { id: 104, name: "Maria Rodriguez", title: "Team Lead", location: "Seattle, WA", company: "CloudWorks" },
-        { id: 105, name: "Nathan Anderson", title: "Engineering Manager", location: "Mountain View, CA", company: "VisionaryAI" },
-        { id: 106, name: "Olivia Taylor", title: "Scrum Master", location: "Boston, MA", company: "DataMinds" },
-        { id: 107, name: "Paul Harris", title: "Director", location: "Los Angeles, CA", company: "PixelForge" },
-        { id: 108, name: "Quinn White", title: "Manager", location: "Chicago, IL", company: "InfraCorp" },
-        { id: 109, name: "Rachel Green", title: "VP Engineering", location: "San Francisco, CA", company: "Innotech" },
-      ],
-      designer: [
-        { id: 201, name: "Sophie Martin", title: "UX Designer", location: "San Francisco, CA", company: "PixelForge" },
-        { id: 202, name: "Thomas Jackson", title: "UI Designer", location: "New York, NY", company: "Atlas" },
-        { id: 203, name: "Ursula Wagner", title: "Product Designer", location: "Los Angeles, CA", company: "CreativeCo" },
-        { id: 204, name: "Victor Lopez", title: "Design Lead", location: "Austin, TX", company: "BuildRight" },
-        { id: 205, name: "Wendy Scott", title: "Graphic Designer", location: "Seattle, WA", company: "CloudWorks" },
-        { id: 206, name: "Xavier King", title: "Design Manager", location: "Boston, MA", company: "DataMinds" },
-        { id: 207, name: "Yara Ahmed", title: "UX Researcher", location: "Mountain View, CA", company: "VisionaryAI" },
-        { id: 208, name: "Zack Miller", title: "Design Systems Engineer", location: "Chicago, IL", company: "InfraCorp" },
-        { id: 209, name: "Amy Cooper", title: "Creative Director", location: "San Francisco, CA", company: "CreativeCo" },
-      ]
+      1: { name: "Alice Johnson", title: "Senior Software Engineer", location: "San Francisco, CA", company: "Innotech" },
+      2: { name: "Bob Smith", title: "Full Stack Engineer", location: "New York, NY", company: "Atlas" },
+      3: { name: "Carol Davis", title: "DevOps Engineer", location: "Seattle, WA", company: "CloudWorks" },
+      4: { name: "David Lee", title: "Backend Engineer", location: "San Francisco, CA", company: "ByteLabs" },
+      5: { name: "Emma Wilson", title: "ML Engineer", location: "Mountain View, CA", company: "VisionaryAI" },
+      6: { name: "Frank Brown", title: "QA Engineer", location: "Austin, TX", company: "QualityFirst" },
+      7: { name: "Grace Kim", title: "Frontend Engineer", location: "Los Angeles, CA", company: "PixelForge" },
+      8: { name: "Henry Martinez", title: "Platform Engineer", location: "Chicago, IL", company: "InfraCorp" },
+      9: { name: "Iris Chen", title: "Data Engineer", location: "Boston, MA", company: "DataMinds" },
+      101: { name: "James Wilson", title: "Engineering Manager", location: "San Francisco, CA", company: "Innotech" },
+      102: { name: "Karen Thompson", title: "Product Manager", location: "New York, NY", company: "Atlas" },
+      103: { name: "Leo Garcia", title: "Project Manager", location: "Austin, TX", company: "BuildRight" },
+      104: { name: "Maria Rodriguez", title: "Team Lead", location: "Seattle, WA", company: "CloudWorks" },
+      105: { name: "Nathan Anderson", title: "Engineering Manager", location: "Mountain View, CA", company: "VisionaryAI" },
+      201: { name: "Sophie Martin", title: "UX Designer", location: "San Francisco, CA", company: "PixelForge" },
+      202: { name: "Thomas Jackson", title: "UI Designer", location: "New York, NY", company: "Atlas" },
     };
 
-    const PROFILES_PER_PAGE = 3;
-    let currentPage = 1;
-    let currentKeyword = "";
-    let currentResults = [];
-
-    function parseQuery(q) {
-      // simple tokens map: e.g. "name:alice location:sf title:engineer company:innotech"
-      const parts = q.split(/\s+/).map(s => s.trim()).filter(Boolean);
-      const out = { text: [], name: "", location: "", title: "", company: "" };
-      parts.forEach(p => {
-        const idx = p.indexOf(":");
-        if (idx > 0) {
-          const k = p.substring(0, idx).toLowerCase();
-          const v = p.substring(idx+1);
-          if (k === "name") out.name = v;
-          else if (k === "location") out.location = v;
-          else if (k === "title") out.title = v;
-          else if (k === "company") out.company = v;
-          else out.text.push(p);
-        } else {
-          out.text.push(p);
-        }
-      });
-      return out;
-    }
-
-    function matchProfile(p, q) {
-      // q: parsed query
-      const text = q.text.join(" ").toLowerCase();
-      if (q.name && !p.name.toLowerCase().includes(q.name.toLowerCase())) return false;
-      if (q.location && !p.location.toLowerCase().includes(q.location.toLowerCase())) return false;
-      if (q.title && !p.title.toLowerCase().includes(q.title.toLowerCase())) return false;
-      if (q.company && !(p.company && p.company.toLowerCase().includes(q.company.toLowerCase()))) return false;
-      if (text) {
-        const hay = (p.name + " " + p.title + " " + (p.company||"") + " " + p.location).toLowerCase();
-        return text.split(/\s+/).every(t => hay.includes(t));
+    const mockPosts = [
+      {
+        id: 1,
+        author: "Alice Johnson",
+        avatar: "A",
+        company: "Innotech",
+        time: "2 hours ago",
+        title: "Building Scalable Systems at Scale",
+        text: "Just published a deep dive into microservices architecture. Learn how we reduced latency by 40% using event-driven design patterns. The full article is now live on our engineering blog.",
+        image: "🏗️",
+        likes: 342,
+        comments: [
+          { author: "Bob Smith", text: "Excellent insights on event sourcing!" },
+          { author: "Carol Davis", text: "This aligns with our DevOps strategy perfectly." }
+        ]
+      },
+      {
+        id: 2,
+        author: "Emma Wilson",
+        avatar: "E",
+        company: "VisionaryAI",
+        time: "5 hours ago",
+        title: "Machine Learning for Real-time Recommendations",
+        text: "Excited to share our latest ML research on low-latency recommendation systems. We've achieved 98% accuracy with a 50ms response time. Check out the whitepaper.",
+        image: "🤖",
+        likes: 521,
+        comments: [
+          { author: "Grace Kim", text: "The optimization techniques are groundbreaking!" }
+        ]
+      },
+      {
+        id: 3,
+        author: "James Wilson",
+        avatar: "J",
+        company: "Innotech",
+        time: "1 day ago",
+        title: "2026 Engineering Hiring Trends",
+        text: "Based on our hiring experience, here are the top 5 skills we're looking for in 2026. The talent market is evolving rapidly, and companies need to adapt their recruiting strategies.",
+        image: "📈",
+        likes: 612,
+        comments: [
+          { author: "Karen Thompson", text: "Great perspective on market trends." },
+          { author: "Leo Garcia", text: "We're seeing similar patterns in our company." },
+          { author: "Maria Rodriguez", text: "This is extremely helpful for our planning." }
+        ]
+      },
+      {
+        id: 4,
+        author: "Sophie Martin",
+        avatar: "S",
+        company: "PixelForge",
+        time: "1 day ago",
+        title: "Design Systems That Scale: Lessons Learned",
+        text: "After building design systems for 3 companies, I've learned what works and what doesn't. Today I'm sharing 7 principles for creating maintainable, scalable design systems.",
+        image: "🎨",
+        likes: 434,
+        comments: [
+          { author: "Thomas Jackson", text: "Love the practical examples!" }
+        ]
+      },
+      {
+        id: 5,
+        author: "Nathan Anderson",
+        avatar: "N",
+        company: "VisionaryAI",
+        time: "2 days ago",
+        title: "Remote Engineering Teams: Best Practices",
+        text: "Managing distributed teams across 5 continents has taught us valuable lessons. Here are our best practices for building high-performing remote engineering teams.",
+        image: "🌍",
+        likes: 289,
+        comments: []
       }
-      return true;
+    ];
+
+    const companies = ["Innotech", "Atlas", "VisionaryAI", "CloudWorks", "PixelForge"];
+
+    let postLikes = {};
+    mockPosts.forEach(p => postLikes[p.id] = false);
+
+    function renderPosts() {
+      const container = document.getElementById("posts-container");
+      container.innerHTML = mockPosts.map(post => `
+        <div class="post" data-post-id="${post.id}">
+          <div class="post-header">
+            <div class="post-avatar">${post.avatar}</div>
+            <div class="post-author-info">
+              <div class="post-author">${post.author}</div>
+              <div class="post-time">${post.time}</div>
+            </div>
+          </div>
+          <div class="post-image">${post.image}</div>
+          <div class="post-content">
+            <div class="post-title">${post.title}</div>
+            <div class="post-text">${post.text}</div>
+          </div>
+          <div class="post-footer">
+            <button class="post-action like-btn" onclick="toggleLike(${post.id})">
+              <span id="like-icon-${post.id}">👍</span> <span id="like-count-${post.id}">${post.likes}</span>
+            </button>
+            <button class="post-action" onclick="toggleComments(${post.id})">
+              💬 <span>${post.comments.length}</span>
+            </button>
+            <button class="post-action">
+              ↗️ Share
+            </button>
+          </div>
+          <div class="comment-section" id="comments-${post.id}">
+            <div class="comment-input">
+              <input type="text" placeholder="Add a comment..." id="comment-input-${post.id}" />
+              <button onclick="addComment(${post.id})">Post</button>
+            </div>
+            <div id="comments-list-${post.id}">
+              ${post.comments.map(c => `
+                <div class="comment">
+                  <div class="comment-author">${c.author}</div>
+                  <div class="comment-text">${c.text}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `).join('');
     }
 
-    function getProfiles(query) {
-      const q = parseQuery((query||"").trim());
-      let results = [];
-      // search across all lists
-      Object.values(mockProfiles).forEach(list => {
-        list.forEach(p => {
-          if (matchProfile(p, q)) results.push(p);
-        })
-      })
-      return results;
+    function toggleLike(postId) {
+      postLikes[postId] = !postLikes[postId];
+      const likeBtn = document.querySelector(`[data-post-id="${postId}"] .like-btn`);
+      const likeCount = document.getElementById(`like-count-${postId}`);
+      const likeIcon = document.getElementById(`like-icon-${postId}`);
+      
+      if (postLikes[postId]) {
+        likeBtn.classList.add('liked');
+        likeCount.textContent = parseInt(likeCount.textContent) + 1;
+        likeIcon.textContent = '❤️';
+      } else {
+        likeBtn.classList.remove('liked');
+        likeCount.textContent = parseInt(likeCount.textContent) - 1;
+        likeIcon.textContent = '👍';
+      }
     }
 
-    function getTotalPages() {
-      return Math.ceil(currentResults.length / PROFILES_PER_PAGE);
+    function toggleComments(postId) {
+      const section = document.getElementById(`comments-${postId}`);
+      section.classList.toggle('show');
     }
 
-    function getPaginatedResults() {
-      const start = (currentPage - 1) * PROFILES_PER_PAGE;
-      const end = start + PROFILES_PER_PAGE;
-      return currentResults.slice(start, end);
+    function addComment(postId) {
+      const input = document.getElementById(`comment-input-${postId}`);
+      const text = input.value.trim();
+      if (!text) return;
+      
+      const commentsList = document.getElementById(`comments-list-${postId}`);
+      const comment = document.createElement('div');
+      comment.className = 'comment';
+      comment.innerHTML = `
+        <div class="comment-author">You</div>
+        <div class="comment-text">${text}</div>
+      `;
+      commentsList.appendChild(comment);
+      input.value = '';
     }
 
-    function renderResults() {
-      const container = document.getElementById("results-container");
-      const pageProfiles = getPaginatedResults();
+    function renderFeaturedProfessionals() {
+      const featured = Object.values(mockProfiles).slice(0, 5);
+      const container = document.getElementById("featured-professionals");
+      container.innerHTML = featured.map(p => `
+        <div class="profile-card" style="margin-bottom: 12px;">
+          <h3><a href="profile.html?id=${p.id}">${p.name}</a></h3>
+          <div class="profile-title">${p.title}</div>
+          <div class="profile-location">${p.location}</div>
+          <button style="width: 100%; margin-top: 12px; padding: 8px; background: #0f3460; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 600;">Connect</button>
+        </div>
+      `).join('');
+    }
 
-      if (pageProfiles.length === 0) {
-        container.innerHTML = '<div class="no-results">No results found.</div>';
+    function renderTrendingCompanies() {
+      const container = document.getElementById("trending-companies");
+      container.innerHTML = companies.map(c => `
+        <a href="company.html?id=${encodeURIComponent(c)}" style="display: block; padding: 10px 0; color: #0f3460; text-decoration: none; font-size: 14px; font-weight: 500; border-bottom: 1px solid #e8ecf1;">
+          ${c}
+        </a>
+      `).join('');
+    }
+
+    const PROFILES_PER_PAGE = 3;
+    let currentSearchResults = [];
+    let currentSearchPage = 1;
+
+    function renderResultsPage(container, results, page) {
+      const start = (page - 1) * PROFILES_PER_PAGE;
+      const pageSlice = results.slice(start, start + PROFILES_PER_PAGE);
+      if (pageSlice.length === 0) {
+        container.innerHTML = '<div class="no-results">No professionals found matching your search.</div>';
         return;
       }
-
-      let html = '<div class="results">';
-      pageProfiles.forEach(profile => {
-        html += `
-          <div class="profile-card">
-            <h3><a href="profile.html?id=${profile.id}" data-profile-id="${profile.id}">${profile.name}</a></h3>
-            <div class="profile-title">${profile.title}</div>
-            <div class="profile-location">${profile.location}</div>
-          </div>
-        `;
-      });
-      html += '</div>';
-      container.innerHTML = html;
-
-      updatePaginationButtons();
+      container.innerHTML = `
+        <div class="results-grid">
+          ${pageSlice.map(p => `
+            <div class="profile-card">
+              <h3><a href="profile.html?id=${p.id}">${p.name}</a></h3>
+              <div class="profile-title">${p.title}</div>
+              <div class="profile-location">${p.location}</div>
+              <div style="margin-top: 8px; color: #999; font-size: 13px;">${p.company}</div>
+            </div>
+          `).join('')}
+        </div>
+      `;
     }
 
-    function updatePaginationButtons() {
-      const totalPages = getTotalPages();
-      document.getElementById("current-page").textContent = currentPage;
-      document.getElementById("total-pages").textContent = totalPages;
-      document.getElementById("prev-btn").disabled = currentPage <= 1;
-      document.getElementById("next-btn").disabled = currentPage >= totalPages;
+    function updatePaginationControls() {
+      const total = Math.max(1, Math.ceil(currentSearchResults.length / PROFILES_PER_PAGE));
+      document.getElementById('total-pages').textContent = total;
+      document.getElementById('current-page').textContent = currentSearchPage;
+      document.getElementById('prev-btn').disabled = currentSearchPage <= 1;
+      document.getElementById('next-btn').disabled = currentSearchPage >= total;
     }
 
-    function performSearch() {
-      const keyword = document.getElementById("search-input").value;
-      currentKeyword = keyword;
-      currentPage = 1;
-      currentResults = getProfiles(keyword);
-      renderResults();
-      renderProfileSidebar(currentResults.slice(0,5));
-    }
-
-    function nextPage() {
-      const totalPages = getTotalPages();
-      if (currentPage < totalPages) {
-        currentPage++;
-        renderResults();
-      }
-    }
-
-    function previousPage() {
-      if (currentPage > 1) {
-        currentPage--;
-        renderResults();
-      }
-    }
-
-    // Initialize on page load
-    document.getElementById("search-btn").addEventListener("click", performSearch);
-    document.getElementById("search-input").addEventListener("keypress", function(e) {
-      if (e.key === "Enter") {
-        performSearch();
+    document.getElementById('prev-btn').addEventListener('click', function() {
+      if (currentSearchPage > 1) {
+        currentSearchPage--;
+        renderResultsPage(document.getElementById('results-container'), currentSearchResults, currentSearchPage);
+        updatePaginationControls();
       }
     });
 
-    // Initial render - show featured posts and spotlight profiles (like a feed)
-    const featured = [
-      { id: 'p1', title: 'How to write resilient microservices', author: 'Team Innotech', excerpt: 'Best practices for reliability and observability.' },
-      { id: 'p2', title: 'Hiring in 2026: what to expect', author: 'Recruitment Insights', excerpt: 'Market trends and salary bands.' },
-      { id: 'p3', title: 'Design systems that scale', author: 'PixelForge', excerpt: 'Patterns for reusable UI components.' },
-      { id: 'p4', title: 'Observability on a budget', author: 'CloudWorks', excerpt: 'Affordable monitoring strategies for startups.' },
-      { id: 'p5', title: 'Hiring remote engineers', author: 'Atlas', excerpt: 'Tips to build distributed teams.' },
-    ];
-
-    function renderFeatured(posts) {
-      const el = document.getElementById('featured-posts');
-      let html = '<div style="background:white;padding:16px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.06);">';
-      html += '<h3>Featured</h3>';
-      posts.forEach(p => {
-        html += `<div style="padding:10px 0;border-top:1px solid #f0f0f0;"><strong>${p.title}</strong><div style="font-size:13px;color:#666">${p.author}</div><p style="margin-top:6px;color:#444">${p.excerpt}</p></div>`;
-      });
-      html += '</div>';
-      el.innerHTML = html;
-    }
-
-    function renderProfileSidebar(list) {
-      const el = document.getElementById('profile-section');
-      let html = '<div style="background:white;padding:16px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.06);">';
-      html += '<h4>Spotlight Profiles</h4>';
-      if (!list || list.length === 0) {
-        html += '<div style="color:#666">No spotlight profiles yet.</div>';
-      } else {
-        list.forEach(p => {
-          html += `<div style="padding:8px 0;border-top:1px solid #f7f7f7;"><a href="profile.html?id=${p.id}">${p.name}</a><div style="font-size:13px;color:#777">${p.title}</div></div>`;
-        })
+    document.getElementById('next-btn').addEventListener('click', function() {
+      const total = Math.max(1, Math.ceil(currentSearchResults.length / PROFILES_PER_PAGE));
+      if (currentSearchPage < total) {
+        currentSearchPage++;
+        renderResultsPage(document.getElementById('results-container'), currentSearchResults, currentSearchPage);
+        updatePaginationControls();
       }
-      html += '</div>';
-      el.innerHTML = html;
+    });
+
+    function performSearch() {
+      const keyword = document.getElementById("search-input").value.toLowerCase().trim();
+      const container = document.getElementById("results-container");
+      
+      if (!keyword) {
+        container.innerHTML = '';
+        currentSearchResults = [];
+        currentSearchPage = 1;
+        updatePaginationControls();
+        return;
+      }
+      
+      const results = Object.entries(mockProfiles)
+        .map(([id, p]) => ({ id: parseInt(id), ...p }))
+        .filter(p => 
+          p.name.toLowerCase().includes(keyword) ||
+          p.title.toLowerCase().includes(keyword) ||
+          p.location.toLowerCase().includes(keyword) ||
+          p.company.toLowerCase().includes(keyword)
+        );
+      
+      currentSearchResults = results;
+      currentSearchPage = 1;
+      updatePaginationControls();
+
+      if (results.length === 0) {
+        container.innerHTML = '<div class="no-results">No professionals found matching your search.</div>';
+        return;
+      }
+
+      renderResultsPage(container, currentSearchResults, currentSearchPage);
     }
 
-    renderFeatured(featured);
-    renderProfileSidebar([mockProfiles.engineer[0], mockProfiles.manager[0]]);
+    // Initialize
+    document.getElementById("search-btn").addEventListener("click", performSearch);
+    document.getElementById("search-input").addEventListener("keypress", function(e) {
+      if (e.key === "Enter") performSearch();
+    });
+
+    renderPosts();
+    renderFeaturedProfessionals();
+    renderTrendingCompanies();
   </script>
 </body>
 </html>

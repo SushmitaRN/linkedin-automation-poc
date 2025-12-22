@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"context"
 	"log"
 	"os"
 	"strings"
@@ -10,34 +9,29 @@ import (
 
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/launcher"
+	"github.com/go-rod/rod/lib/proto"
 	"github.com/sushmitaRN/linkedin-automation-poc/internal/auth"
+	"github.com/sushmitaRN/linkedin-automation-poc/internal/behavior"
 	"github.com/sushmitaRN/linkedin-automation-poc/internal/connect"
 	"github.com/sushmitaRN/linkedin-automation-poc/internal/message"
+	"github.com/sushmitaRN/linkedin-automation-poc/internal/post"
+	"github.com/sushmitaRN/linkedin-automation-poc/internal/ratelimit"
 	"github.com/sushmitaRN/linkedin-automation-poc/internal/scheduler"
 	"github.com/sushmitaRN/linkedin-automation-poc/internal/search"
-	"github.com/sushmitaRN/linkedin-automation-poc/internal/templates"
 )
 
 func main() {
 	log.Println("Starting browser automation with mock site")
 
-	// Read required inputs from environment
-	// Load .env if present and ensure required env vars exist (fallback to safe defaults)
+	// Load environment variables
 	loadDotEnv()
 
-	// Read inputs from environment (defaults applied by loadDotEnv)
 	email := os.Getenv("MOCK_EMAIL")
 	password := os.Getenv("MOCK_PASSWORD")
-	searchQuery := os.Getenv("SEARCH_QUERY")
 	if email == "" || password == "" {
-		// last-resort defaults
 		email = "test@example.com"
 		password = "password123"
-		log.Println("Warning: using default MOCK_EMAIL/MOCK_PASSWORD; set env vars to override")
-	}
-	if searchQuery == "" {
-		// default: empty search (page will show featured posts)
-		log.Println("Warning: no SEARCH_QUERY set; page will show featured content. Set SEARCH_QUERY to search.")
+		log.Println("Warning: using default credentials")
 	}
 
 	// Launch browser
@@ -49,27 +43,31 @@ func main() {
 	browser := rod.New().
 		ControlURL(u).
 		MustConnect()
-	defer browser.MustClose()
+	defer func() {
+		_ = browser.Close()
+	}()
 
-	// Open a page and navigate to mock login
 	page := browser.MustPage("")
-	defer page.MustClose()
+	defer func() {
+		_ = page.Close()
+	}()
 
+	// Login
 	loginURL := "file:///e:/visualstudio/linkedin-automation-poc/mock-site/login.html"
 	if err := page.Navigate(loginURL); err != nil {
 		log.Fatalf("could not open login page: %v", err)
 	}
-	page.MustWaitLoad()
+	if err := page.WaitLoad(); err != nil {
+		log.Printf("warning: WaitLoad after opening login page: %v", err)
+	}
 
-	// Attempt to load saved cookies (best-effort) then perform login (do not skip login)
 	_ = auth.LoadCookies(page, "data/session.cookie")
 	if err := auth.Login(page, email, password); err != nil {
 		log.Fatalf("login failed: %v", err)
 	}
-	// Save session cookies after successful login
 	_ = auth.SaveCookies(page, "data/session.cookie")
 
-	// Get default search configuration and set proper local file URL
+	// Get search configuration
 	config := search.DefaultSearchConfig()
 	config.PageURL = "file:///e:/visualstudio/linkedin-automation-poc/mock-site/search.html"
 
@@ -77,103 +75,338 @@ func main() {
 	if err := page.Navigate(config.PageURL); err != nil {
 		log.Fatalf("could not open search page: %v", err)
 	}
-	page.MustWaitLoad()
-
-	// Perform search (first page)
-	log.Println("\n=== Performing search ===")
-	// prefer name+location if provided
-	results, err := search.SearchFirstPage(page, searchQuery, config)
-	if err != nil {
-		log.Fatalf("search failed: %v", err)
+	if err := page.WaitLoad(); err != nil {
+		log.Printf("warning: WaitLoad after opening search page: %v", err)
 	}
 
-	log.Printf("Found %d profiles on page 1 of %d\n", len(results.Profiles), results.TotalPages)
-	for i, profile := range results.Profiles {
-		log.Printf("  %d. %s - %s", i+1, profile.Name, profile.Title)
+	connCfg := connect.ConnectConfig{
+		DailyLimit:    5,
+		StoragePath:   "data/sent_requests.json",
+		PersonalNote:  "", // Can be set to send personalized notes with connect requests
+		NoteCharLimit: 300, // LinkedIn character limit for connection notes
 	}
 
-	// Send connect requests for discovered profiles (respecting daily limit)
-	connCfg := connect.ConnectConfig{DailyLimit: 5, StoragePath: "data/sent_requests.json"}
-	for _, p := range results.Profiles {
-		profileURL := p.URL
-		if profileURL == "" {
-			log.Printf("warning: %s has no URL, skipping connect", p.Name)
-			continue
+	normalize := func(url string) string {
+		if url == "" {
+			return ""
 		}
-		// Convert relative URLs to absolute file:// URLs
-		if !strings.HasPrefix(profileURL, "file://") && !strings.HasPrefix(profileURL, "http") {
-			profileURL = "file:///e:/visualstudio/linkedin-automation-poc/mock-site/" + profileURL
+		if strings.HasPrefix(url, "file://") || strings.HasPrefix(url, "http") {
+			return url
 		}
-		if err := connect.SendConnectRequest(page, profileURL, connCfg); err != nil {
-			log.Printf("connect skipped for %s: %v", p.Name, err)
-		} else {
-			log.Printf("connect sent to %s", p.Name)
-		}
+		return "file:///e:/visualstudio/linkedin-automation-poc/mock-site/" + url
 	}
 
-	// Try to send follow-up messages for accepted connections (limited per run)
-	// Load templates and pick one by ID (default to first)
-	templatesList, err := templates.LoadTemplates("")
-	if err != nil || len(templatesList) == 0 {
-		log.Printf("warning: could not load templates: %v", err)
-	}
-	var tpl *templates.Template
-	if len(templatesList) > 0 {
-		tpl = &templatesList[0]
-	}
+	// Helper function to process a search flow
+	processSearchFlow := func(flowName, query string) {
+		log.Printf("\n=== Flow: %s (query=%q) ===", flowName, query)
 
-	msgCfg := message.MessageConfig{StoragePath: "data/sent_messages.json"}
-	msgsSent := 0
-	msgsLimit := 3
-	for _, p := range results.Profiles {
-		if msgsSent >= msgsLimit {
-			break
-		}
-		profileURL := p.URL
-		if profileURL == "" {
-			continue
-		}
-		// Convert relative URLs to absolute file:// URLs
-		if !strings.HasPrefix(profileURL, "file://") && !strings.HasPrefix(profileURL, "http") {
-			profileURL = "file:///e:/visualstudio/linkedin-automation-poc/mock-site/" + profileURL
-		}
-		if tpl == nil {
-			continue
-		}
-		vars := map[string]string{"first_name": strings.Split(p.Name, " ")[0], "company": ""}
-		if err := message.SendMessageIfConnected(page, profileURL, tpl.Body, vars, msgCfg); err != nil {
-			log.Printf("message skipped for %s: %v", p.Name, err)
-			continue
-		}
-		msgsSent++
-		log.Printf("message sent to %s", p.Name)
-	}
+		// Check if this is a company search
+		isCompanySearch := strings.Contains(strings.ToLower(flowName), "company")
 
-	// Process any pending messages (scheduler)
-	schedCfg := scheduler.SchedulerConfig{PendingPath: "data/pending_messages.json", TemplatesPath: "", MsgStorage: "data/sent_messages.json"}
-	if err := scheduler.ProcessPending(page, schedCfg); err != nil {
-		log.Printf("scheduler error: %v", err)
-	}
-
-	// Optionally navigate to next page (demonstration, with short timeout)
-	if results.TotalPages > 1 {
+		// Step 1: Navigate to search page
+		log.Println("Step 1: Navigating to search page...")
+		if err := page.Navigate(config.PageURL); err != nil {
+			log.Printf("ERROR: could not navigate to search page: %v", err)
+			return
+		}
+		if err := page.WaitLoad(); err != nil {
+			log.Printf("warning: WaitLoad after navigating to search page: %v", err)
+		}
 		time.Sleep(1 * time.Second)
-		log.Println("\n=== Navigating to next page ===")
 
-		// Create a context with a short timeout for page navigation
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
+		// Step 2: Enter search query and click search button
+		log.Printf("Step 2: Entering search query '%s' and clicking search button...", query)
+		searchInput, err := page.Element(config.SearchInputID)
+		if err != nil || searchInput == nil {
+			log.Printf("ERROR: search input not found: %v", err)
+			return
+		}
+		_ = searchInput.SelectAllText()
+		if err := searchInput.Input(query); err != nil {
+			log.Printf("ERROR: could not enter search query: %v", err)
+			return
+		}
+		time.Sleep(500 * time.Millisecond)
 
-		page = page.Context(ctx)
-		nextResults, err := search.NextPage(page, config)
+		// Click search button
+		searchBtn, err := page.Element(config.SearchButtonID)
+		if err != nil || searchBtn == nil {
+			log.Printf("ERROR: search button not found: %v", err)
+			return
+		}
+		if err := searchBtn.Click(proto.InputMouseButtonLeft, 1); err != nil {
+			log.Printf("ERROR: could not click search button: %v", err)
+			return
+		}
+		log.Println("✓ Search button clicked")
+
+		// Wait for search results to appear
+		log.Println("Waiting for search results...")
+		time.Sleep(2 * time.Second)
+		
+		// Get search results with pagination info
+		searchResults, err := search.SearchFirstPage(page, query, config)
 		if err != nil {
-			log.Printf("Warning: could not navigate to next page: %v", err)
+			log.Printf("WARNING: could not get search results: %v", err)
+		} else if searchResults != nil {
+			log.Printf("Search found %d profiles across %d pages", searchResults.TotalProfiles, searchResults.TotalPages)
+		}
+
+		var targetURL string
+		var targetName string
+
+		if isCompanySearch {
+			// For company search, navigate directly to company profile page
+			log.Printf("Step 3: Detected company search, navigating to company profile: %s", query)
+			targetURL = normalize("company.html?id=" + query)
+			targetName = query
+			
+			if err := page.Navigate(targetURL); err != nil {
+				log.Printf("ERROR: could not navigate to company profile: %v", err)
+				return
+			}
+			if err := page.WaitLoad(); err != nil {
+				log.Printf("warning: WaitLoad after navigating to company: %v", err)
+			}
+			time.Sleep(2 * time.Second)
+			
+			// Verify company page loaded
+			companyNameEl, err := page.Element("#company-name")
+			if err != nil || companyNameEl == nil {
+				log.Printf("ERROR: company page did not load correctly (company-name element not found)")
+				return
+			}
+			companyName, _ := companyNameEl.Text()
+			log.Printf("✓ Company page loaded successfully: %s", companyName)
+			targetName = companyName
 		} else {
-			log.Printf("Found %d profiles on page %d of %d\n", len(nextResults.Profiles), nextResults.CurrentPage, nextResults.TotalPages)
-			for i, profile := range nextResults.Profiles {
-				log.Printf("  %d. %s - %s", i+1, profile.Name, profile.Title)
+			// For person search, find and click on first profile
+			log.Println("Step 3: Looking for profile links in search results...")
+			profileLinks, err := page.Elements(config.ProfileLinkSel)
+			if err != nil || len(profileLinks) == 0 {
+				log.Printf("ERROR: no profile links found in search results")
+				return
+			}
+
+			// Click on the first profile link
+			firstProfileLink := profileLinks[0]
+			profileName, _ := firstProfileLink.Text()
+			log.Printf("Step 4: Clicking on profile: %s", strings.TrimSpace(profileName))
+			
+			// Get profile URL before clicking
+			profileHref, _ := firstProfileLink.Attribute("href")
+			if profileHref != nil {
+				targetURL = normalize(*profileHref)
+			}
+			
+			if err := firstProfileLink.Click(proto.InputMouseButtonLeft, 1); err != nil {
+				log.Printf("ERROR: could not click profile link: %v", err)
+				return
+			}
+			log.Println("✓ Profile link clicked")
+
+			// Step 5: Wait for profile page to load
+			log.Println("Step 5: Waiting for profile page to load...")
+			if err := page.WaitLoad(); err != nil {
+				log.Printf("warning: WaitLoad after clicking profile: %v", err)
+			}
+			time.Sleep(2 * time.Second)
+
+			// Verify we're on the profile page, navigate directly if needed
+			currentURL := ""
+			if result, err := page.Eval("() => location.href"); err == nil {
+				currentURL = result.Value.Str()
+			}
+			log.Printf("Current URL: %s", currentURL)
+			
+			if targetURL != "" && !strings.Contains(currentURL, "profile.html") {
+				log.Printf("Not on profile page, navigating directly to: %s", targetURL)
+				if err := page.Navigate(targetURL); err != nil {
+					log.Printf("ERROR: could not navigate to profile: %v", err)
+					return
+				}
+				if err := page.WaitLoad(); err != nil {
+					log.Printf("warning: WaitLoad after navigating to profile: %v", err)
+				}
+				time.Sleep(1 * time.Second)
+			}
+			
+			// Check if profile page loaded correctly
+			nameEl, err := page.Element("#name")
+			if err != nil || nameEl == nil {
+				log.Printf("ERROR: profile page did not load correctly (name element not found)")
+				return
+			}
+			nameText, _ := nameEl.Text()
+			log.Printf("✓ Profile page loaded successfully: %s", nameText)
+			targetName = nameText
+		}
+
+		// Step 6: Click connect/follow button
+		if isCompanySearch {
+			log.Println("Step 6: Clicking 'Follow Company' button...")
+			connectBtn, err := page.Element("#connect-btn")
+			if err != nil || connectBtn == nil {
+				log.Printf("ERROR: follow company button not found: %v", err)
+				return
+			}
+			// Scroll to button first
+			connectBtn.ScrollIntoView()
+			time.Sleep(500 * time.Millisecond)
+			if err := connectBtn.Click(proto.InputMouseButtonLeft, 1); err != nil {
+				log.Printf("ERROR: could not click follow company button: %v", err)
+				return
+			}
+			log.Println("✓ Follow Company button clicked")
+			time.Sleep(1 * time.Second)
+		} else {
+			log.Println("Step 6: Clicking connect button...")
+			// We're already on the profile page, so click directly without navigating
+			connectBtn, err := page.Element("#connect-btn")
+			if err != nil || connectBtn == nil {
+				log.Printf("ERROR: connect button not found: %v", err)
+				return
+			}
+			// Scroll to button first
+			connectBtn.ScrollIntoView()
+			time.Sleep(500 * time.Millisecond)
+			
+			// Check rate limit before clicking
+			if err := ratelimit.CheckAndIncrement("connect", connCfg.DailyLimit, "data/quotas.json"); err != nil {
+				log.Printf("WARNING: rate limit reached: %v", err)
+				// Continue anyway for testing, but log the warning
+			}
+			
+			if err := connectBtn.Click(proto.InputMouseButtonLeft, 1); err != nil {
+				log.Printf("ERROR: could not click connect button: %v", err)
+				return
+			}
+			log.Println("✓ Connect button clicked - connection request sent")
+			time.Sleep(1 * time.Second)
+		}
+
+		// Step 7: Send message
+		log.Println("Step 7: Sending message...")
+		var msgText string
+		var vars map[string]string
+
+		if isCompanySearch {
+			msgText = "Hi {{company}}, I'm interested in learning more about opportunities at your company."
+			vars = map[string]string{
+				"company": targetName,
+			}
+		} else {
+			msgText = "Hi {{first_name}}, thanks for connecting — are there any openings at {{company}}?"
+			firstName := strings.Split(targetName, " ")[0]
+			vars = map[string]string{
+				"first_name": firstName,
+				"company":    "your company", // Default placeholder
+			}
+
+			// Try to get company from profile
+			if companyEl, err := page.Element("#company"); err == nil && companyEl != nil {
+				if companyText, err := companyEl.Text(); err == nil {
+					vars["company"] = companyText
+				}
 			}
 		}
+
+		// Send message directly (we're already on the page)
+		renderedMsg := message.RenderTemplate(msgText, vars)
+		
+		// Check rate limit
+		if err := ratelimit.CheckAndIncrement("message", 5, "data/quotas.json"); err != nil {
+			log.Printf("WARNING: message rate limit reached: %v", err)
+			// Continue anyway for testing
+		}
+		
+		// Find message box
+		msgBox, err := page.Element("#message-box")
+		if err != nil || msgBox == nil {
+			log.Printf("ERROR: message box not found: %v", err)
+			return
+		}
+		
+		// Scroll to message box
+		msgBox.ScrollIntoView()
+		time.Sleep(500 * time.Millisecond)
+		
+		// Type message with human-like typing
+		log.Printf("Typing message: %s", renderedMsg)
+		if err := behavior.HumanType(msgBox, renderedMsg); err != nil {
+			log.Printf("ERROR: could not type message: %v", err)
+			return
+		}
+		time.Sleep(500 * time.Millisecond)
+		
+		// Click send button
+		sendBtn, err := page.Element("#send-btn")
+		if err != nil || sendBtn == nil {
+			log.Printf("ERROR: send button not found: %v", err)
+			return
+		}
+		if err := sendBtn.Click(proto.InputMouseButtonLeft, 1); err != nil {
+			log.Printf("ERROR: could not click send button: %v", err)
+			return
+		}
+		log.Printf("✓ Message sent to %s", targetName)
+		time.Sleep(1 * time.Second)
+
+		log.Printf("✓ Flow '%s' completed successfully\n", flowName)
+	}
+
+	// Execute all search flows in order
+	log.Println("\n========================================")
+	log.Println("Starting LinkedIn Automation")
+	log.Println("========================================\n")
+
+	processSearchFlow("Search by Name", "Bob")
+	processSearchFlow("Search by Company", "VisionaryAI")
+	processSearchFlow("Search by Location", "San Francisco")
+	processSearchFlow("Search by Position", "Engineer")
+
+	// Process pending messages for newly accepted connections
+	log.Println("\n========================================")
+	log.Println("Processing Pending Messages for Accepted Connections")
+	log.Println("========================================\n")
+	
+	schedulerCfg := scheduler.SchedulerConfig{
+		PendingPath:   "data/pending_messages.json",
+		TemplatesPath: "data/templates.json",
+		MsgStorage:    "data/sent_messages.json",
+	}
+	
+	if err := scheduler.ProcessPending(page, schedulerCfg); err != nil {
+		log.Printf("ERROR: processing pending messages failed: %v", err)
+	} else {
+		log.Println("✓ Pending messages processed")
+	}
+
+	// Post interaction feature - scroll, like, and comment on posts
+	log.Println("\n========================================")
+	log.Println("Starting Post Interaction Feature")
+	log.Println("========================================\n")
+
+	// Navigate back to search page where posts are displayed
+	log.Println("Navigating to search page for post interaction...")
+	if err := page.Navigate(config.PageURL); err != nil {
+		log.Printf("ERROR: could not navigate to search page: %v", err)
+	} else {
+		if err := page.WaitLoad(); err != nil {
+			log.Printf("warning: WaitLoad after navigating: %v", err)
+		}
+		time.Sleep(2 * time.Second)
+
+		// Interact with posts (scroll, like, comment)
+		// Only interact with 2 posts, then scroll down
+		if err := post.InteractWithPosts(page, 2); err != nil {
+			log.Printf("ERROR: post interaction failed: %v", err)
+		}
+		
+		// Scroll down after interacting with posts
+		log.Println("Scrolling down after post interactions...")
+		post.HumanScroll(page, 500)
+		time.Sleep(1 * time.Second)
 	}
 
 	log.Println("\n=== Automation complete ===")
@@ -209,4 +442,21 @@ func loadDotEnv() {
 			log.Printf("Loaded env %s from .env", key)
 		}
 	}
+}
+
+// waitForConnected polls the #connect-status element until it contains "connected" or timeout elapses.
+func waitForConnected(page *rod.Page, timeout time.Duration) bool {
+	deadline := time.Now().Add(timeout)
+	for time.Now().Before(deadline) {
+		if el, err := page.Element("#connect-status"); err == nil && el != nil {
+			if txt, err := el.Text(); err == nil {
+				s := strings.ToLower(strings.TrimSpace(txt))
+				if strings.Contains(s, "connected") || strings.Contains(s, "accepted") {
+					return true
+				}
+			}
+		}
+		time.Sleep(300 * time.Millisecond)
+	}
+	return false
 }

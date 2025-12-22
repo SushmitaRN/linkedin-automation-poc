@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Company Page - ProNet</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #f5f7fa;
+      min-height: 100vh;
+      color: #2d3e50;
+    }
+    .navbar {
+      background: white;
+      border-bottom: 1px solid #e8ecf1;
+      padding: 16px 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      margin-bottom: 30px;
+    }
+    .navbar-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .navbar-logo {
+      font-size: 20px;
+      font-weight: 700;
+      color: #0f3460;
+      letter-spacing: -0.5px;
+    }
+    .navbar a {
+      color: #0f3460;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .navbar a:hover {
+      color: #1a5a96;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    .company-header {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+      margin-bottom: 30px;
+      border: 1px solid #e8ecf1;
+    }
+    .company-cover {
+      height: 250px;
+      background: linear-gradient(135deg, #0f3460 0%, #1a5a96 100%);
+    }
+    .company-body {
+      padding: 30px;
+      position: relative;
+    }
+    .company-logo {
+      width: 130px;
+      height: 130px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #0f3460, #1a5a96);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      font-weight: 700;
+      position: absolute;
+      top: -65px;
+      left: 30px;
+      border: 5px solid white;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    .company-info {
+      margin-left: 160px;
+      margin-bottom: 20px;
+    }
+    .company-name {
+      font-size: 32px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 8px;
+    }
+    .company-description {
+      font-size: 16px;
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      max-width: 700px;
+    }
+    .company-actions {
+      display: flex;
+      gap: 12px;
+      margin-left: 160px;
+    }
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .btn-primary {
+      background: #0f3460;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #1a5a96;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(15, 52, 96, 0.25);
+    }
+    .section {
+      background: white;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e8ecf1;
+    }
+    .section-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #f5f7fa;
+    }
+    .employees-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 16px;
+    }
+    .employee-card {
+      background: #f8fafb;
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid #e8ecf1;
+      transition: all 0.3s ease;
+    }
+    .employee-card:hover {
+      background: white;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transform: translateY(-2px);
+    }
+    .employee-name {
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 4px;
+      display: block;
+    }
+    .employee-name a {
+      color: #0f3460;
+      text-decoration: none;
+    }
+    .employee-name a:hover {
+      color: #1a5a96;
+      text-decoration: underline;
+    }
+    .employee-role {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 12px;
+    }
+    .employee-btn {
+      width: 100%;
+      padding: 8px;
+      background: #0f3460;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .employee-btn:hover {
+      background: #1a5a96;
+    }
+    .message-section {
+      background: white;
+      border-radius: 8px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e8ecf1;
+      margin-top: 20px;
+    }
+    .message-box {
+      width: 100%;
+      min-height: 100px;
+      padding: 12px;
+      border: 1px solid #e0e6ed;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: vertical;
+      margin-bottom: 12px;
+    }
+    .message-box:focus {
+      outline: none;
+      border-color: #0f3460;
+      box-shadow: 0 0 0 3px rgba(15, 52, 96, 0.1);
+    }
+    .status-message {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      display: none;
+    }
+    .status-success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+      display: block;
+    }
+    @media (max-width: 768px) {
+      .company-body {
+        padding: 20px;
+      }
+      .company-logo {
+        width: 90px;
+        height: 90px;
+        font-size: 36px;
+        top: -45px;
+        left: 20px;
+      }
+      .company-name {
+        font-size: 24px;
+      }
+      .company-info,
+      .company-actions {
+        margin-left: 0;
+        margin-top: 50px;
+      }
+      .employees-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <div class="navbar-content">
+      <div class="navbar-logo">ProNet</div>
+      <a onclick="history.back()">← Back</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="company-header">
+      <div class="company-cover"></div>
+      <div class="company-body">
+        <div class="company-logo" id="logo">🏢</div>
+        <div class="company-info">
+          <div class="company-name" id="company-name">Company Name</div>
+          <div class="company-description" id="company-description">Company overview and mission.</div>
+        </div>
+        <div class="company-actions">
+          <button class="btn btn-primary" id="connect-btn">Follow Company</button>
+        </div>
+        <div id="connect-status" class="status-message"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Team Members</div>
+      <div class="employees-grid" id="employees-list"></div>
+    </div>
+
+    <div class="message-section">
+      <div class="section-title">Message Company</div>
+      <textarea id="message-box" class="message-box" placeholder="Write a message to the company..."></textarea>
+      <button class="btn btn-primary" id="send-btn">Send Message</button>
+      <div id="message-status" class="status-message"></div>
+    </div>
+  </div>
+
+  <script>
+    const companyData = {
+      'Innotech': {
+        description: 'A leading technology company focused on innovation and digital transformation. We build cutting-edge software solutions that empower businesses.',
+        employees: [
+          { id: 1, name: 'Alice Johnson', role: 'Senior Software Engineer' },
+          { id: 101, name: 'James Wilson', role: 'Engineering Manager' }
+        ]
+      },
+      'Atlas': {
+        description: 'Global software platform company dedicated to providing enterprise solutions. We help companies scale and grow with our technology.',
+        employees: [
+          { id: 2, name: 'Bob Smith', role: 'Full Stack Engineer' },
+          { id: 102, name: 'Karen Thompson', role: 'Product Manager' },
+          { id: 202, name: 'Thomas Jackson', role: 'UI Designer' }
+        ]
+      },
+      'CloudWorks': {
+        description: 'Cloud infrastructure and services provider. We specialize in helping businesses migrate to and operate in the cloud.',
+        employees: [
+          { id: 3, name: 'Carol Davis', role: 'DevOps Engineer' },
+          { id: 104, name: 'Maria Rodriguez', role: 'Team Lead' },
+          { id: 205, name: 'Wendy Scott', role: 'Graphic Designer' }
+        ]
+      },
+      'VisionaryAI': {
+        description: 'AI and machine learning innovators. We develop advanced AI solutions for the enterprise and consumer markets.',
+        employees: [
+          { id: 5, name: 'Emma Wilson', role: 'ML Engineer' },
+          { id: 105, name: 'Nathan Anderson', role: 'Engineering Manager' },
+          { id: 207, name: 'Yara Ahmed', role: 'UX Researcher' }
+        ]
+      },
+      'PixelForge': {
+        description: 'Creative design and digital agency. We create beautiful, functional digital experiences that drive business results.',
+        employees: [
+          { id: 7, name: 'Grace Kim', role: 'Frontend Engineer' },
+          { id: 201, name: 'Sophie Martin', role: 'UX Designer' }
+        ]
+      }
+    };
+
+    function getQueryParam(name) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name);
+    }
+
+    const companyName = getQueryParam('id') || 'Innotech';
+    const company = companyData[companyName] || {
+      description: 'Leading technology company in the industry.',
+      employees: []
+    };
+
+    // Set company data
+    document.getElementById('company-name').textContent = companyName;
+    document.getElementById('company-description').textContent = company.description;
+    
+    // Get logo from company name initials
+    const initials = companyName.split(' ').map(word => word[0]).join('').toUpperCase();
+    document.getElementById('logo').textContent = initials;
+
+    // Render employees
+    const employeesList = document.getElementById('employees-list');
+    if (company.employees.length === 0) {
+      employeesList.innerHTML = '<div style="grid-column: 1/-1; color: #999; padding: 20px; text-align: center;">No employees listed</div>';
+    } else {
+      employeesList.innerHTML = company.employees.map(emp => `
+        <div class="employee-card">
+          <a href="profile.html?id=${emp.id}" class="employee-name">${emp.name}</a>
+          <div class="employee-role">${emp.role}</div>
+          <button class="employee-btn" onclick="viewProfile(${emp.id})">View Profile</button>
+        </div>
+      `).join('');
+    }
+
+    function viewProfile(id) {
+      window.location.href = `profile.html?id=${id}`;
+    }
+
+    let followed = false;
+
+    document.getElementById('connect-btn').addEventListener('click', function() {
+      followed = !followed;
+      const status = document.getElementById('connect-status');
+      
+      if (followed) {
+        this.textContent = 'Following';
+        this.style.opacity = '0.7';
+        status.textContent = '✓ You are now following ' + companyName;
+        status.className = 'status-message status-success';
+      } else {
+        this.textContent = 'Follow Company';
+        this.style.opacity = '1';
+        status.className = 'status-message';
+      }
+    });
+
+    document.getElementById('send-btn').addEventListener('click', function() {
+      const message = document.getElementById('message-box').value.trim();
+      const status = document.getElementById('message-status');
+      
+      if (!message) {
+        status.textContent = '⚠️ Please write a message';
+        status.style.background = '#ffeaa7';
+        status.style.color = '#856404';
+        status.display = 'block';
+        return;
+      }
+      
+      status.textContent = '✓ Message sent to ' + companyName + '!';
+      status.className = 'status-message status-success';
+      document.getElementById('message-box').value = '';
+      
+      setTimeout(() => {
+        status.className = 'status-message';
+      }, 4000);
+    });
+  </script>
+</body>
+</html>

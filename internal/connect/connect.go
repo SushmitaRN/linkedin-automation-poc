@@ -17,8 +17,10 @@ import (
 
 // ConnectConfig controls connect behavior and storage
 type ConnectConfig struct {
-	DailyLimit  int
-	StoragePath string // file path to store sent requests
+	DailyLimit      int
+	StoragePath     string // file path to store sent requests
+	PersonalNote    string // optional personalized note to send with connect request
+	NoteCharLimit   int    // character limit for personalized notes (default 300)
 }
 
 // SentRequest stores a sent connect request record
@@ -145,8 +147,69 @@ func SendConnectRequest(page *rod.Page, profileURL string, cfg ConnectConfig) er
 	log.Println("Hovering over connect button...")
 	behavior.ThinkPause()
 
+	// If personalized note is provided, try to add it
+	if cfg.PersonalNote != "" {
+		noteCharLimit := cfg.NoteCharLimit
+		if noteCharLimit <= 0 {
+			noteCharLimit = 300 // Default LinkedIn limit
+		}
+		
+		// Truncate note if exceeds limit
+		note := cfg.PersonalNote
+		if len(note) > noteCharLimit {
+			log.Printf("Note exceeds %d character limit, truncating...", noteCharLimit)
+			note = note[:noteCharLimit-3] + "..."
+		}
+		
+		// Try to find note input field (may appear after clicking connect)
+		// For now, we'll click connect first, then check for note field
+		log.Printf("Sending connect request with personalized note (%d chars)...", len(note))
+	}
+	
 	if err := btn.Click(proto.InputMouseButtonLeft, 1); err != nil {
 		return err
+	}
+
+	// Wait a moment for any modal or note field to appear
+	time.Sleep(500 * time.Millisecond)
+	
+	// If note provided, try to find and fill note field
+	if cfg.PersonalNote != "" {
+		noteCharLimit := cfg.NoteCharLimit
+		if noteCharLimit <= 0 {
+			noteCharLimit = 300
+		}
+		note := cfg.PersonalNote
+		if len(note) > noteCharLimit {
+			note = note[:noteCharLimit-3] + "..."
+		}
+		
+		// Try common selectors for note input
+		noteSelectors := []string{
+			"#note-input",
+			"textarea[placeholder*='note']",
+			"textarea[placeholder*='message']",
+			".connect-note-input",
+			"#custom-message",
+		}
+		
+		var noteInput *rod.Element
+		for _, selector := range noteSelectors {
+			if el, err := page.Element(selector); err == nil && el != nil {
+				noteInput = el
+				break
+			}
+		}
+		
+		if noteInput != nil {
+			log.Println("Found note input field, adding personalized note...")
+			if err := behavior.HumanType(noteInput, note); err == nil {
+				log.Println("✓ Personalized note added")
+				time.Sleep(500 * time.Millisecond)
+			}
+		} else {
+			log.Println("Note input field not found (may not be supported in mock site)")
+		}
 	}
 
 	log.Println("✓ Connect request sent")
