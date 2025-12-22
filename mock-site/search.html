@@ -35,7 +35,6 @@
       color: #0f3460;
       letter-spacing: -0.5px;
     }
-    /* Post Styles */
     .post {
       background: white;
       border-radius: 8px;
@@ -68,9 +67,7 @@
       font-size: 18px;
       flex-shrink: 0;
     }
-    .post-author-info {
-      flex: 1;
-    }
+    .post-author-info { flex: 1; }
     .post-author {
       font-weight: 600;
       color: #1a1a1a;
@@ -91,9 +88,7 @@
       font-size: 48px;
       color: #0f3460;
     }
-    .post-content {
-      padding: 20px;
-    }
+    .post-content { padding: 20px; }
     .post-title {
       font-size: 16px;
       font-weight: 600;
@@ -134,17 +129,13 @@
       background: #f5f7fa;
       color: #0f3460;
     }
-    .post-action.liked {
-      color: #e74c3c;
-    }
+    .post-action.liked { color: #e74c3c; }
     .comment-section {
       padding: 12px 20px;
       border-top: 1px solid #e8ecf1;
       display: none;
     }
-    .comment-section.show {
-      display: block;
-    }
+    .comment-section.show { display: block; }
     .comment-input {
       display: flex;
       gap: 8px;
@@ -167,9 +158,7 @@
       font-size: 13px;
       font-weight: 600;
     }
-    .comment-input button:hover {
-      background: #1a5a96;
-    }
+    .comment-input button:hover { background: #1a5a96; }
     .comment {
       padding: 12px;
       background: #f8fafb;
@@ -177,14 +166,8 @@
       margin-bottom: 8px;
       font-size: 13px;
     }
-    .comment-author {
-      font-weight: 600;
-      color: #1a1a1a;
-    }
-    .comment-text {
-      color: #666;
-      margin-top: 4px;
-    }
+    .comment-author { font-weight: 600; color: #1a1a1a; }
+    .comment-text { color: #666; margin-top: 4px; }
     .results-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -288,12 +271,7 @@
       transform: translateY(-4px);
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
     }
-    .profile-card:hover::before {
-      opacity: 1;
-    }
-    .profile-card:hover::before {
-      opacity: 1;
-    }
+    .profile-card:hover::before { opacity: 1; }
     .profile-card h3 {
       margin: 0 0 8px 0;
       font-size: 17px;
@@ -380,11 +358,17 @@
         />
         <button id="search-btn">Search</button>
       </div>
+
+      <div id="search-type-container" style="display:flex; gap:8px; font-size:13px;">
+        <label><input type="radio" name="searchType" value="name" checked> Name</label>
+        <label><input type="radio" name="searchType" value="company"> Company</label>
+        <label><input type="radio" name="searchType" value="location"> Location</label>
+        <label><input type="radio" name="searchType" value="position"> Position</label>
+      </div>
     </div>
   </div>
 
   <div class="main-container">
-    <!-- Left Sidebar -->
     <div class="sidebar">
       <div class="card">
         <div class="section-title">Trending Companies</div>
@@ -401,13 +385,11 @@
       </div>
     </div>
 
-    <!-- Main Feed -->
     <div class="feed">
       <div id="posts-container"></div>
       <div id="results-container"></div>
     </div>
 
-    <!-- Right Sidebar -->
     <div class="sidebar">
       <div class="card">
         <div class="section-title">Featured Professionals</div>
@@ -423,24 +405,23 @@
   </div>
 
   <script>
-    // Mock database
     const mockProfiles = {
-      1: { name: "Alice Johnson", title: "Senior Software Engineer", location: "San Francisco, CA", company: "Innotech" },
-      2: { name: "Bob Smith", title: "Full Stack Engineer", location: "New York, NY", company: "Atlas" },
-      3: { name: "Carol Davis", title: "DevOps Engineer", location: "Seattle, WA", company: "CloudWorks" },
-      4: { name: "David Lee", title: "Backend Engineer", location: "San Francisco, CA", company: "ByteLabs" },
-      5: { name: "Emma Wilson", title: "ML Engineer", location: "Mountain View, CA", company: "VisionaryAI" },
-      6: { name: "Frank Brown", title: "QA Engineer", location: "Austin, TX", company: "QualityFirst" },
-      7: { name: "Grace Kim", title: "Frontend Engineer", location: "Los Angeles, CA", company: "PixelForge" },
-      8: { name: "Henry Martinez", title: "Platform Engineer", location: "Chicago, IL", company: "InfraCorp" },
-      9: { name: "Iris Chen", title: "Data Engineer", location: "Boston, MA", company: "DataMinds" },
-      101: { name: "James Wilson", title: "Engineering Manager", location: "San Francisco, CA", company: "Innotech" },
-      102: { name: "Karen Thompson", title: "Product Manager", location: "New York, NY", company: "Atlas" },
-      103: { name: "Leo Garcia", title: "Project Manager", location: "Austin, TX", company: "BuildRight" },
-      104: { name: "Maria Rodriguez", title: "Team Lead", location: "Seattle, WA", company: "CloudWorks" },
-      105: { name: "Nathan Anderson", title: "Engineering Manager", location: "Mountain View, CA", company: "VisionaryAI" },
-      201: { name: "Sophie Martin", title: "UX Designer", location: "San Francisco, CA", company: "PixelForge" },
-      202: { name: "Thomas Jackson", title: "UI Designer", location: "New York, NY", company: "Atlas" },
+      1:   { name: "Alice Johnson",   title: "Senior Software Engineer", location: "San Francisco, CA",   company: "Innotech" },
+      2:   { name: "Bob Smith",       title: "Full Stack Engineer",      location: "New York, NY",        company: "Atlas" },
+      3:   { name: "Carol Davis",     title: "DevOps Engineer",          location: "Seattle, WA",         company: "CloudWorks" },
+      4:   { name: "David Lee",       title: "Backend Engineer",         location: "San Francisco, CA",   company: "ByteLabs" },
+      5:   { name: "Emma Wilson",     title: "ML Engineer",              location: "Mountain View, CA",   company: "VisionaryAI" },
+      6:   { name: "Frank Brown",     title: "QA Engineer",              location: "Austin, TX",          company: "QualityFirst" },
+      7:   { name: "Grace Kim",       title: "Frontend Engineer",        location: "Los Angeles, CA",     company: "PixelForge" },
+      8:   { name: "Henry Martinez",  title: "Platform Engineer",        location: "Chicago, IL",         company: "InfraCorp" },
+      9:   { name: "Iris Chen",       title: "Data Engineer",            location: "Boston, MA",          company: "DataMinds" },
+      101: { name: "James Wilson",    title: "Engineering Manager",      location: "San Francisco, CA",   company: "Innotech" },
+      102: { name: "Karen Thompson",  title: "Product Manager",          location: "New York, NY",        company: "Atlas" },
+      103: { name: "Leo Garcia",      title: "Project Manager",          location: "Austin, TX",          company: "BuildRight" },
+      104: { name: "Maria Rodriguez", title: "Team Lead",                location: "Seattle, WA",         company: "CloudWorks" },
+      105: { name: "Nathan Anderson", title: "Engineering Manager",      location: "Mountain View, CA",   company: "VisionaryAI" },
+      201: { name: "Sophie Martin",   title: "UX Designer",              location: "San Francisco, CA",   company: "PixelForge" },
+      202: { name: "Thomas Jackson",  title: "UI Designer",              location: "New York, NY",        company: "Atlas" },
     };
 
     const mockPosts = [
@@ -519,8 +500,15 @@
 
     const companies = ["Innotech", "Atlas", "VisionaryAI", "CloudWorks", "PixelForge"];
 
+    const PROFILES_PER_PAGE = 3;
     let postLikes = {};
-    mockPosts.forEach(p => postLikes[p.id] = false);
+    let currentSearchResults = [];
+    let currentSearchPage = 1;
+
+    Object.keys(mockPosts).forEach(k => {
+      const p = mockPosts[k];
+      postLikes[p.id] = false;
+    });
 
     function renderPosts() {
       const container = document.getElementById("posts-container");
@@ -545,9 +533,7 @@
             <button class="post-action" onclick="toggleComments(${post.id})">
               💬 <span>${post.comments.length}</span>
             </button>
-            <button class="post-action">
-              ↗️ Share
-            </button>
+            <button class="post-action">↗️ Share</button>
           </div>
           <div class="comment-section" id="comments-${post.id}">
             <div class="comment-input">
@@ -572,7 +558,7 @@
       const likeBtn = document.querySelector(`[data-post-id="${postId}"] .like-btn`);
       const likeCount = document.getElementById(`like-count-${postId}`);
       const likeIcon = document.getElementById(`like-icon-${postId}`);
-      
+
       if (postLikes[postId]) {
         likeBtn.classList.add('liked');
         likeCount.textContent = parseInt(likeCount.textContent) + 1;
@@ -593,7 +579,6 @@
       const input = document.getElementById(`comment-input-${postId}`);
       const text = input.value.trim();
       if (!text) return;
-      
       const commentsList = document.getElementById(`comments-list-${postId}`);
       const comment = document.createElement('div');
       comment.className = 'comment';
@@ -606,7 +591,7 @@
     }
 
     function renderFeaturedProfessionals() {
-      const featured = Object.values(mockProfiles).slice(0, 5);
+      const featured = Object.entries(mockProfiles).slice(0, 5).map(([id, p]) => ({ id, ...p }));
       const container = document.getElementById("featured-professionals");
       container.innerHTML = featured.map(p => `
         <div class="profile-card" style="margin-bottom: 12px;">
@@ -626,10 +611,6 @@
         </a>
       `).join('');
     }
-
-    const PROFILES_PER_PAGE = 3;
-    let currentSearchResults = [];
-    let currentSearchPage = 1;
 
     function renderResultsPage(container, results, page) {
       const start = (page - 1) * PROFILES_PER_PAGE;
@@ -680,7 +661,10 @@
     function performSearch() {
       const keyword = document.getElementById("search-input").value.toLowerCase().trim();
       const container = document.getElementById("results-container");
-      
+
+      const typeEl = document.querySelector('input[name="searchType"]:checked');
+      const searchType = typeEl ? typeEl.value : "name";
+
       if (!keyword) {
         container.innerHTML = '';
         currentSearchResults = [];
@@ -688,16 +672,36 @@
         updatePaginationControls();
         return;
       }
-      
+
       const results = Object.entries(mockProfiles)
         .map(([id, p]) => ({ id: parseInt(id), ...p }))
-        .filter(p => 
-          p.name.toLowerCase().includes(keyword) ||
-          p.title.toLowerCase().includes(keyword) ||
-          p.location.toLowerCase().includes(keyword) ||
-          p.company.toLowerCase().includes(keyword)
-        );
-      
+        .filter(p => {
+          const name     = p.name.toLowerCase();
+          const title    = p.title.toLowerCase();
+          const location = p.location.toLowerCase();
+          const company  = p.company.toLowerCase();
+
+          if (searchType === "name") {
+            return name.includes(keyword);
+          }
+          if (searchType === "company") {
+            return company.includes(keyword);
+          }
+          if (searchType === "location") {
+            return location.includes(keyword);
+          }
+          if (searchType === "position") {
+            return title.includes(keyword);
+          }
+
+          return (
+            name.includes(keyword) ||
+            title.includes(keyword) ||
+            location.includes(keyword) ||
+            company.includes(keyword)
+          );
+        });
+
       currentSearchResults = results;
       currentSearchPage = 1;
       updatePaginationControls();
@@ -710,7 +714,6 @@
       renderResultsPage(container, currentSearchResults, currentSearchPage);
     }
 
-    // Initialize
     document.getElementById("search-btn").addEventListener("click", performSearch);
     document.getElementById("search-input").addEventListener("keypress", function(e) {
       if (e.key === "Enter") performSearch();
