@@ -41,4 +41,3 @@ func DetectSecurityCheckpoints(page *rod.Page) error {
 
 	return nil
 }
-

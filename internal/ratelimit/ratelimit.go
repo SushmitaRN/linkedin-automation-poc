@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sync"
 	"time"
 )
 
@@ -19,6 +20,8 @@ type ActionQuota struct {
 
 // Default storage path
 var DefaultQuotaPath = "data/quotas.json"
+
+var mu sync.Mutex
 
 func ensureDir(path string) error {
 	d := filepath.Dir(path)
@@ -60,16 +63,57 @@ func saveQuotas(path string, q Quotas) error {
 	return os.WriteFile(path, b, 0o644)
 }
 
-// CheckAndIncrement checks whether `action` is under the daily `limit` and increments the counter if allowed.
-// Returns an error if the limit has been reached.
-func CheckAndIncrement(action string, limit int, path string) error {
-	// Developer override: skip quota checks when DEV_IGNORE_QUOTAS=1
+/*
+========================
+NEW: Check (no increment)
+========================
+*/
+
+// Check verifies quota without incrementing
+func Check(action string, limit int, path string) error {
 	if os.Getenv("DEV_IGNORE_QUOTAS") == "1" {
 		return nil
 	}
 	if limit <= 0 {
 		return nil
 	}
+
+	mu.Lock()
+	defer mu.Unlock()
+
+	q, err := loadQuotas(path)
+	if err != nil {
+		return err
+	}
+
+	today := time.Now().Format("2006-01-02")
+	aq, ok := q[action]
+	if !ok || aq.Date != today {
+		return nil // zero usage today
+	}
+
+	if aq.Count >= limit {
+		return fmt.Errorf("daily limit reached for %s (%d)", action, limit)
+	}
+
+	return nil
+}
+
+/*
+========================
+NEW: Increment only
+========================
+*/
+
+// Increment increments quota after success
+func Increment(action string, path string) error {
+	if os.Getenv("DEV_IGNORE_QUOTAS") == "1" {
+		return nil
+	}
+
+	mu.Lock()
+	defer mu.Unlock()
+
 	q, err := loadQuotas(path)
 	if err != nil {
 		return err
@@ -77,19 +121,58 @@ func CheckAndIncrement(action string, limit int, path string) error {
 	if q == nil {
 		q = Quotas{}
 	}
+
 	today := time.Now().Format("2006-01-02")
 	aq, ok := q[action]
 	if !ok || aq.Date != today {
-		// reset
 		aq = ActionQuota{Date: today, Count: 0}
 	}
+
+	aq.Count++
+	q[action] = aq
+
+	return saveQuotas(path, q)
+}
+
+/*
+========================
+EXISTING: CheckAndIncrement
+(unchanged behavior)
+========================
+*/
+
+// CheckAndIncrement checks whether `action` is under the daily `limit` and increments the counter if allowed.
+func CheckAndIncrement(action string, limit int, path string) error {
+	if os.Getenv("DEV_IGNORE_QUOTAS") == "1" {
+		return nil
+	}
+	if limit <= 0 {
+		return nil
+	}
+
+	mu.Lock()
+	defer mu.Unlock()
+
+	q, err := loadQuotas(path)
+	if err != nil {
+		return err
+	}
+	if q == nil {
+		q = Quotas{}
+	}
+
+	today := time.Now().Format("2006-01-02")
+	aq, ok := q[action]
+	if !ok || aq.Date != today {
+		aq = ActionQuota{Date: today, Count: 0}
+	}
+
 	if aq.Count >= limit {
 		return fmt.Errorf("daily limit reached for %s (%d)", action, limit)
 	}
+
 	aq.Count++
 	q[action] = aq
-	if err := saveQuotas(path, q); err != nil {
-		return err
-	}
-	return nil
+
+	return saveQuotas(path, q)
 }

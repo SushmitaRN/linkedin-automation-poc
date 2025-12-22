@@ -122,5 +122,37 @@
   {
     "profile_url": "file:///e:/visualstudio/linkedin-automation-poc/mock-site/profile.html?id=2",
     "timestamp": "2025-12-21T22:49:40.1939176+05:30"
+  },
+  {
+    "profile_url": "file:///e:/visualstudio/linkedin-automation-poc/mock-site/profile.html?id=2",
+    "timestamp": "2025-12-22T17:08:38.5012109+05:30"
+  },
+  {
+    "profile_url": "file:///e:/visualstudio/linkedin-automation-poc/mock-site/profile.html?id=5",
+    "timestamp": "2025-12-22T17:09:00.1764101+05:30"
+  },
+  {
+    "profile_url": "file:///e:/visualstudio/linkedin-automation-poc/mock-site/profile.html?id=1",
+    "timestamp": "2025-12-22T17:09:22.935987+05:30"
+  },
+  {
+    "profile_url": "file:///e:/visualstudio/linkedin-automation-poc/mock-site/profile.html?id=1",
+    "timestamp": "2025-12-22T17:09:46.7701555+05:30"
+  },
+  {
+    "profile_url": "file:///e:/visualstudio/linkedin-automation-poc/mock-site/profile.html?id=2",
+    "timestamp": "2025-12-22T17:13:04.3934578+05:30"
+  },
+  {
+    "profile_url": "file:///e:/visualstudio/linkedin-automation-poc/mock-site/profile.html?id=2",
+    "timestamp": "2025-12-22T18:38:15.2832138+05:30"
+  },
+  {
+    "profile_url": "file:///e:/visualstudio/linkedin-automation-poc/mock-site/profile.html?id=2",
+    "timestamp": "2025-12-22T18:45:02.8515591+05:30"
+  },
+  {
+    "profile_url": "file:///e:/visualstudio/linkedin-automation-poc/mock-site/profile.html?id=5",
+    "timestamp": "2025-12-22T18:45:43.5285858+05:30"
   }
 ]

@@ -30,7 +30,7 @@ func ScrollToElement(page *rod.Page, element *rod.Element) error {
 			currentY: currentScroll
 		};
 	}`, element)
-	
+
 	if err != nil {
 		// Fallback: simple scroll into view
 		element.ScrollIntoView()
@@ -94,7 +94,7 @@ func LikePost(page *rod.Page, postElement *rod.Element) error {
 	// Find the like button within this post - try multiple selectors
 	var likeBtn *rod.Element
 	var err error
-	
+
 	// Try .like-btn first
 	likeBtn, err = postElement.Element(".like-btn")
 	if err != nil || likeBtn == nil {
@@ -133,7 +133,7 @@ func LikePost(page *rod.Page, postElement *rod.Element) error {
 		// Scroll to button
 		likeBtn.ScrollIntoView()
 		time.Sleep(300 * time.Millisecond)
-		
+
 		if err := likeBtn.Click(proto.InputMouseButtonLeft, 1); err != nil {
 			log.Printf("Error clicking like button: %v", err)
 			return err
@@ -169,7 +169,7 @@ func CommentOnPost(page *rod.Page, postElement *rod.Element, commentText string)
 	// Find and click the comment button to expand comments section
 	// Try multiple ways to find the comment toggle button
 	var commentToggleBtn *rod.Element
-	
+
 	// Method 1: Find button with onclick containing toggleComments
 	allButtons, _ := postElement.Elements("button")
 	for _, btn := range allButtons {
@@ -179,7 +179,7 @@ func CommentOnPost(page *rod.Page, postElement *rod.Element, commentText string)
 			break
 		}
 	}
-	
+
 	// Method 2: Find by text content (contains 💬)
 	if commentToggleBtn == nil {
 		allActions, _ := postElement.Elements(".post-action")
@@ -196,7 +196,7 @@ func CommentOnPost(page *rod.Page, postElement *rod.Element, commentText string)
 		log.Println("Found comment toggle button, clicking to expand...")
 		commentToggleBtn.ScrollIntoView()
 		time.Sleep(300 * time.Millisecond)
-		
+
 		// Click to expand comments section
 		if err := commentToggleBtn.Click(proto.InputMouseButtonLeft, 1); err != nil {
 			log.Printf("Could not click comment toggle: %v", err)
@@ -243,7 +243,7 @@ func CommentOnPost(page *rod.Page, postElement *rod.Element, commentText string)
 	// Find and click post button
 	// Try multiple ways to find the post button
 	var postBtn *rod.Element
-	
+
 	// Method 1: Find button with onclick containing addComment
 	allPageButtons, _ := page.Elements("button")
 	for _, btn := range allPageButtons {
@@ -253,7 +253,7 @@ func CommentOnPost(page *rod.Page, postElement *rod.Element, commentText string)
 			break
 		}
 	}
-	
+
 	// Method 2: Find button in comment section
 	if postBtn == nil {
 		commentSection, _ := postElement.Element("#comments-" + *postID)
@@ -269,7 +269,7 @@ func CommentOnPost(page *rod.Page, postElement *rod.Element, commentText string)
 		log.Println("Found post button, clicking...")
 		postBtn.ScrollIntoView()
 		time.Sleep(300 * time.Millisecond)
-		
+
 		if err := postBtn.Click(proto.InputMouseButtonLeft, 1); err != nil {
 			log.Printf("Error clicking post button: %v", err)
 			return err
@@ -354,5 +354,3 @@ func InteractWithPosts(page *rod.Page, maxPosts int) error {
 	log.Println("\n=== Post Interaction Complete ===")
 	return nil
 }
-
-

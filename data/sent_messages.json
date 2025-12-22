@@ -88,5 +88,40 @@
     "profile_url": "file:///e:/visualstudio/linkedin-automation-poc/mock-site/profile.html?id=2",
     "message": "Hi Bob, thanks for connecting — are there any openings at Atlas?",
     "timestamp": "2025-12-21T22:49:55.5943451+05:30"
+  },
+  {
+    "profile_url": "file:///e:/visualstudio/linkedin-automation-poc/mock-site/profile.html?id=2",
+    "message": "Hi Bob, thanks for connecting — are there any openings at Atlas?",
+    "timestamp": "2025-12-22T17:08:52.5823131+05:30"
+  },
+  {
+    "profile_url": "file:///e:/visualstudio/linkedin-automation-poc/mock-site/profile.html?id=5",
+    "message": "Hi Emma, thanks for connecting — are there any openings at VisionaryAI?",
+    "timestamp": "2025-12-22T17:09:14.3565632+05:30"
+  },
+  {
+    "profile_url": "file:///e:/visualstudio/linkedin-automation-poc/mock-site/profile.html?id=1",
+    "message": "Hi Alice, thanks for connecting — are there any openings at Innotech?",
+    "timestamp": "2025-12-22T17:09:39.3696725+05:30"
+  },
+  {
+    "profile_url": "file:///e:/visualstudio/linkedin-automation-poc/mock-site/profile.html?id=1",
+    "message": "Hi Alice, thanks for connecting — are there any openings at Innotech?",
+    "timestamp": "2025-12-22T17:10:02.5361997+05:30"
+  },
+  {
+    "profile_url": "file:///e:/visualstudio/linkedin-automation-poc/mock-site/profile.html?id=2",
+    "message": "Hi Bob, thanks for connecting — are there any openings at Atlas?",
+    "timestamp": "2025-12-22T17:13:18.4594654+05:30"
+  },
+  {
+    "profile_url": "file:///e:/visualstudio/linkedin-automation-poc/mock-site/profile.html?id=2",
+    "message": "Hi Bob, thanks for connecting — are there any openings at Atlas?",
+    "timestamp": "2025-12-22T18:38:30.1752291+05:30"
+  },
+  {
+    "profile_url": "file:///e:/visualstudio/linkedin-automation-poc/mock-site/profile.html?id=2",
+    "message": "Hi Bob, thanks for connecting — are there any openings at Atlas?",
+    "timestamp": "2025-12-22T18:45:16.1028859+05:30"
   }
 ]
